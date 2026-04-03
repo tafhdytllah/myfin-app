@@ -14,8 +14,8 @@ CREATE TABLE public.users
     created_by    varchar(64)                         NOT NULL,
     updated_at    timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_by    varchar(64)                         NOT NULL,
-    deleted_at    timestamp NULL,
-    deleted_by    varchar(64) NULL,
+    deleted_at    timestamp                           NULL,
+    deleted_by    varchar(64)                         NULL,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_username_key UNIQUE (username),
     CONSTRAINT users_email_key UNIQUE (email)

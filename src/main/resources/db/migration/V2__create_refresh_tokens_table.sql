@@ -13,8 +13,8 @@ CREATE TABLE public.refresh_tokens
     created_by varchar(64)                         NOT NULL,
     updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_by varchar(64)                         NOT NULL,
-    deleted_at timestamp NULL,
-    deleted_by varchar(64) NULL,
+    deleted_at timestamp                           NULL,
+    deleted_by varchar(64)                         NULL,
     CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id)
         REFERENCES public.users (id)
         ON DELETE CASCADE
