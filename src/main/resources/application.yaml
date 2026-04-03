@@ -1,0 +1,54 @@
+# =============================
+# Server
+# =============================
+server:
+  port: 8080
+
+# =============================
+# Spring Boot Main Config
+# =============================
+spring:
+  application:
+    name: myfin-app
+
+  # ================
+  # Datasource / DB
+  # ================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/myfin_db
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+
+  # ================
+  # Flyway
+  # ================
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    clean-disabled: true # DEV - change false on PROD
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    com.tafh.ecommerce: DEBUG
