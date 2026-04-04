@@ -65,6 +65,12 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>10.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.17.0</version>
         </dependency>
 
         <!-- PostgreSQL -->
@@ -126,7 +132,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>9.22.3</version>
+                <version>10.17.0</version>
                 <configuration>
                     <url>jdbc:postgresql://localhost:5432/myfin_db</url>
                     <user>postgres</user>
