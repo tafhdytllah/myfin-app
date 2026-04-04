@@ -42,13 +42,16 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false # use ISO format
 
 logging:
   level:
     root: INFO
+    com.tafh.myfin_app: DEBUG
     org.springframework.web: INFO
     org.springframework.security: INFO
-    com.tafh.ecommerce: DEBUG
