@@ -15,6 +15,10 @@ public class ResponseHelper {
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
+    public static <T> ResponseEntity<ApiResponse<T>> ok(T data, String message) {
+        return ResponseEntity.ok(ApiResponse.success(data, message));
+    }
+
     public static <T> ResponseEntity<ApiResponse<T>> ok(T data, PagingResponse paging) {
         return ResponseEntity.ok(ApiResponse.success(data, paging));
     }

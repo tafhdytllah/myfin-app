@@ -1,9 +1,12 @@
 package com.tafh.myfin_app;
 
+import com.tafh.myfin_app.common.security.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties({JwtProperties.class})
 public class MyfinAppApplication {
 
     public static void main(String[] args) {

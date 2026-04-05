@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 public class PagingResponse {
 
     private int currentPage;
+
     private int pageSize;
+
     private int totalPages;
 
 }

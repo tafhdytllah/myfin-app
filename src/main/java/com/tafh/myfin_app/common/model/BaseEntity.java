@@ -1,15 +1,20 @@
 package com.tafh.myfin_app.common.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
+import com.tafh.myfin_app.common.util.IdGenerator;
+import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-public class BaseEntity {
+@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity {
 
     @Id
     @Column(nullable = false, updatable = false, unique = true, length = 64)
@@ -28,7 +33,7 @@ public class BaseEntity {
     private LocalDateTime updatedAt;
 
     @LastModifiedBy
-    @Column(name = "updated_by", nullable = false, updatable = false)
+    @Column(name = "updated_by", nullable = false)
     private String updatedBy;
 
     @Column(name = "deleted_at")
@@ -37,8 +42,25 @@ public class BaseEntity {
     @Column(name = "deleted_by")
     private String deletedBy;
 
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = generateId();
+        }
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public boolean isDeleted() {
         return deletedAt != null;
+    }
+
+    protected String generateId() {
+        return IdGenerator.generateId();
     }
 
 }
