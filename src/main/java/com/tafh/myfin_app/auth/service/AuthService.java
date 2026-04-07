@@ -7,6 +7,7 @@ import com.tafh.myfin_app.common.exception.BadRequestException;
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
 import com.tafh.myfin_app.common.security.JwtService;
 import com.tafh.myfin_app.common.util.HashHelper;
+import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.enums.Role;
@@ -32,16 +33,18 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public UserProfileResponse register(RegisterRequest request) {
-        String email = request.getEmail();
+        LogHelper.info("AUTH_REGISTER username={}", request.getUsername());
+
         String username = request.getUsername();
+        String email = request.getEmail();
         String rawPassword = request.getPassword();
 
-        if (userRepository.existsByEmail(email)) {
-            throw new BadRequestException("Email already exists");
+        if (userRepository.existsByUsername(username)) {
+            throw new BadRequestException("username", "username already exists");
         }
 
-        if (userRepository.existsByUsername(username)) {
-            throw new BadRequestException("Username already exists");
+        if (userRepository.existsByEmail(email)) {
+            throw new BadRequestException("email", "email already exists");
         }
 
         String hashedPassword = passwordEncoder.encode(rawPassword);
@@ -54,6 +57,7 @@ public class AuthService {
         );
 
         user = userRepository.save(user);
+        LogHelper.info("AUTH_REGISTER_SUCCESS userId={}", user.getId());
 
         return UserProfileResponse.builder()
                 .id(user.getId())
@@ -66,6 +70,7 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
+        LogHelper.info("AUTH_LOGIN username={}", request.getUsername());
 
         String username = request.getUsername();
         String rawPassword = request.getPassword();
@@ -100,6 +105,7 @@ public class AuthService {
 
         refreshTokenRepository.revokeAllByUser(user);
         refreshTokenRepository.save(newToken);
+        LogHelper.info("AUTH_LOGIN_SUCCESS userId={}", userId);
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
@@ -111,6 +117,8 @@ public class AuthService {
 
     @Transactional
     public LoginResponse refresh(RefreshTokenRequest request) {
+        LogHelper.info("AUTH_REFRESH attempt");
+
         String rawToken = request.getRefreshToken();
         String hashedToken = HashHelper.sha256(rawToken);
 
@@ -139,6 +147,7 @@ public class AuthService {
         );
 
         refreshTokenRepository.save(newToken);
+        LogHelper.info("AUTH_REFRESH_SUCCESS userId={}", user.getId());
 
         return LoginResponse.builder()
                 .accessToken(newAccessToken)
@@ -150,6 +159,8 @@ public class AuthService {
 
     @Transactional
     public void logout(RefreshTokenRequest request) {
+        LogHelper.info("AUTH_LOGOUT attempt");
+
         String rawToken = request.getRefreshToken();
         String hashedToken = HashHelper.sha256(rawToken);
 
@@ -157,6 +168,7 @@ public class AuthService {
                 .orElseThrow(() -> new UnauthorizedException("invalid refresh token"));
 
         token.revoke();
+        LogHelper.info("AUTH_LOGOU_SUCCESS");
     }
 
 }

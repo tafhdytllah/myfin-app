@@ -34,6 +34,7 @@ public class GlobalExceptionHandler {
                         details.put(e.getField(), e.getDefaultMessage())
                 );
 
+        LogHelper.warn("BAD_REQUEST : {}", details);
         return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, details);
     }
 
@@ -44,20 +45,26 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleBadRequest(
             BadRequestException ex
     ) {
-        return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, null);
+        Map<String, String> details = new HashMap<>();
+        details.put(ex.getField(), ex.getMessage());
+
+        LogHelper.warn("BAD_REQUEST : {}", details);
+        return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, details);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponse<Object>> handleUnauthorized(
             UnauthorizedException ex
     ) {
-        return ResponseHelper.error(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, null);
+        LogHelper.warn("UNAUTHORIZED : {}", ex.getMessage());
+        return ResponseHelper.error(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiResponse<Object>> handleForbidden(
             ForbiddenException ex
     ) {
+        LogHelper.warn("FORBIDDEN : {}", ex.getMessage());
         return ResponseHelper.error(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, null);
     }
 
@@ -65,7 +72,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleNotFound(
             ResourceNotFoundException ex
     ) {
-        return ResponseHelper.error(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, null);
+        LogHelper.warn("NOT_FOUND : {}", ex.getMessage());
+        return ResponseHelper.error(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, ex.getMessage());
     }
 
     /* =======================
@@ -76,10 +84,7 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
-        String endpoint = request.getMethod() + " " + request.getRequestURI();
-
-        LogHelper.error("Unhandled exception at "+ endpoint, ex);
-
+        LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex.getMessage());
         return ResponseHelper.error(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, null);
     }
 
