@@ -15,6 +15,6 @@ public class HealthController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<String>> checkHealth() {
-        return ResponseHelper.ok("Server is running");
+        return ResponseHelper.ok(null,"Server is running");
     }
 }

@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult()
                 .getFieldErrors()
                 .forEach(e ->
-                        details.put(e.getField(), e.getDefaultMessage())
+                        details.putIfAbsent(e.getField(), e.getDefaultMessage())
                 );
 
         LogHelper.warn("BAD_REQUEST : {}", details);
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
             BadRequestException ex
     ) {
         Map<String, String> details = new HashMap<>();
-        details.put(ex.getField(), ex.getMessage());
+        details.putIfAbsent(ex.getField(), ex.getMessage());
 
         LogHelper.warn("BAD_REQUEST : {}", details);
         return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, details);

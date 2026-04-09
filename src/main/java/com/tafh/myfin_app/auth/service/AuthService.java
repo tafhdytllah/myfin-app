@@ -114,7 +114,6 @@ public class AuthService {
                 .build();
     }
 
-
     @Transactional
     public LoginResponse refresh(RefreshTokenRequest request) {
         LogHelper.info("AUTH_REFRESH attempt");

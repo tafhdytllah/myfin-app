@@ -28,13 +28,14 @@ public class UserEntity extends BaseEntity {
     private Role role;
 
     @Column(name = "isActive", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     public UserEntity(String username, String email, String passwordHash, Role role) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.isActive = true;
     }
 
     public void enable() {

@@ -22,7 +22,7 @@ class HealthControllerTest {
     void healthCheck_shouldReturn200() throws Exception {
         mockMvc.perform(get("/health"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value("Server is running"));
+                .andExpect(jsonPath("$.message").value("Server is running"));
     }
 
 }

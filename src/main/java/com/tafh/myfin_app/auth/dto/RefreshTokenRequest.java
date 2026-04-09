@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 public class RefreshTokenRequest {
 
-    @NotBlank(message = "refreshToken is required")
+    @NotBlank(message = "Refresh token is required")
     private String refreshToken;
 
 }
