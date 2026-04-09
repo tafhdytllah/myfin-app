@@ -38,16 +38,8 @@ public class UserEntity extends BaseEntity {
         this.isActive = true;
     }
 
-    public void enable() {
-        this.isActive = true;
-    }
-
     public void disable() {
         this.isActive = false;
-    }
-
-    public void changePassword(String newPassword) {
-        this.passwordHash = newPassword;
     }
 
 }

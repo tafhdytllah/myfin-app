@@ -4,7 +4,6 @@ import com.tafh.myfin_app.common.constant.ErrorCode;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.common.util.ResponseHelper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,7 +64,7 @@ public class GlobalExceptionHandler {
             ForbiddenException ex
     ) {
         LogHelper.warn("FORBIDDEN : {}", ex.getMessage());
-        return ResponseHelper.error(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, null);
+        return ResponseHelper.error(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -81,11 +80,10 @@ public class GlobalExceptionHandler {
        ======================= */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneric(
-            Exception ex,
-            HttpServletRequest request
+            Exception ex
     ) {
         LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex.getMessage());
-        return ResponseHelper.error(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, null);
+        return ResponseHelper.error(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
 }

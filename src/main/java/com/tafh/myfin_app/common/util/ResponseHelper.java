@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
+
 @RequiredArgsConstructor
 public class ResponseHelper {
 
@@ -29,18 +31,37 @@ public class ResponseHelper {
                 .body(ApiResponse.success(data));
     }
 
+    // ===== FOR VALIDATION ERROR ====
     public static ResponseEntity<ApiResponse<Object>> error(
             HttpStatus status,
             ErrorCode code,
-            Object details
+            Map<String, String> details
     ) {
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(String.valueOf(code))
+                .code(code.name())
                 .message(code.getMessage())
                 .details(details)
                 .build();
 
-        return ResponseEntity.status(status)
+        return ResponseEntity
+                .status(status)
+                .body(ApiResponse.error(errorResponse));
+    }
+
+    // ===== FOR GENERAL / BUSINESS ERROR ====
+    public static ResponseEntity<ApiResponse<Object>> error(
+            HttpStatus status,
+            ErrorCode code,
+            String message
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(code.name())
+                .message(message)
+                .details(null)
+                .build();
+
+        return ResponseEntity
+                .status(status)
                 .body(ApiResponse.error(errorResponse));
     }
 
