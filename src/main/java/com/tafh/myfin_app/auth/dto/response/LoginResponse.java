@@ -1,4 +1,4 @@
-package com.tafh.myfin_app.auth.dto;
+package com.tafh.myfin_app.auth.dto.response;
 
 import lombok.*;
 
@@ -10,9 +10,5 @@ import lombok.*;
 public class LoginResponse {
 
     private String accessToken;
-
-    private String refreshToken;
-
-    private String tokenType;
 
 }

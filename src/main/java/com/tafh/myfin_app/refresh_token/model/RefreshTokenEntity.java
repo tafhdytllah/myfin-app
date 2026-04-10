@@ -1,4 +1,4 @@
-package com.tafh.myfin_app.auth.model;
+package com.tafh.myfin_app.refresh_token.model;
 
 import com.tafh.myfin_app.common.model.BaseEntity;
 import com.tafh.myfin_app.user.model.UserEntity;

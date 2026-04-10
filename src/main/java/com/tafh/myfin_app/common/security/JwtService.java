@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.common.security;
 
+import com.tafh.myfin_app.config.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

@@ -1,4 +1,4 @@
-package com.tafh.myfin_app.auth.dto;
+package com.tafh.myfin_app.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

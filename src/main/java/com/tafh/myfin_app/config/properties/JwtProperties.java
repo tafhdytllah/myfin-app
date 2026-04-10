@@ -1,4 +1,4 @@
-package com.tafh.myfin_app.common.security;
+package com.tafh.myfin_app.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;
