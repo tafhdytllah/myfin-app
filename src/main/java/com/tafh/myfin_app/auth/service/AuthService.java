@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserService userService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RefreshTokenService refreshTokenService;
@@ -66,7 +65,11 @@ public class AuthService {
         String username = request.getUsername().trim();
         String rawPassword = request.getPassword();
 
-        UserEntity user = userService.verifyUserLogin(username, rawPassword);
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UnauthorizedException("invalid username or password"));
+
+        if (!user.getIsActive() || !passwordEncoder.matches(rawPassword, user.getPasswordHash()))
+            throw new UnauthorizedException("invalid username or password");
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getRole().name());
         String rawRefreshToken = jwtService.generateRefreshToken(user.getId());
@@ -92,7 +95,6 @@ public class AuthService {
 
         // rotate token (revoke old + create new
         RotateTokenResult rotateTokenResult = refreshTokenService.rotateRefreshToken(rawRefreshToken);
-
         UserEntity user = rotateTokenResult.getUser();
 
         String newAccessToken = jwtService.generateAccessToken(user.getId(), user.getRole().name());

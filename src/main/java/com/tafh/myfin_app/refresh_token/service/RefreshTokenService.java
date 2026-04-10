@@ -20,9 +20,7 @@ import java.time.temporal.ChronoUnit;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final JwtService jwtService;
-
     private final JwtProperties jwtProperties;
 
     @Transactional
