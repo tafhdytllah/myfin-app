@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +22,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+/**
+ * INTEGRATION TEST AUTH CONTROLLER
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @Autowired
@@ -32,9 +37,9 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // =========================
-    // REGISTER
-    // =========================
+    /**
+     * REGISTER
+     */
     @Test
     void shouldRegisterUserSuccessfully() throws Exception {
         String unique = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
@@ -72,9 +77,9 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.errors.code").value("VALIDATION_ERROR"));
     }
 
-    // =========================
-    // LOGIN
-    // =========================
+    /**
+     * LOGIN
+     */
     @Test
     void shouldLoginSuccessfully() throws Exception {
         String unique = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
@@ -137,9 +142,9 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.errors.code").value("UNAUTHORIZED"));
     }
 
-    // =========================
-    // REFRESH
-    // =========================
+    /**
+     * REFRESH
+     */
     @Test
     void shouldRefreshTokenSuccessfully() throws Exception {
 
@@ -165,14 +170,14 @@ class AuthControllerTest {
     void shouldFailRefresh_whenTokenInvalid() throws Exception {
 
         mockMvc.perform(post("/api/v1/auth/refresh")
-                        .header("Cookie", "refreshToken=invalid-token"))
+                .cookie(new Cookie("refreshToken", "invalid-token")))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors.code").value("UNAUTHORIZED"));
     }
 
-    // =========================
-    // LOGOUT
-    // =========================
+    /**
+     * LOGOUT
+     */
     @Test
     void shouldLogoutSuccessfully() throws Exception {
 
@@ -194,9 +199,9 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.errors.code").value("UNAUTHORIZED"));
     }
 
-    // =========================
-    // HELPER METHOD
-    // =========================
+    /**
+     * HELPER METHOD
+     */
     private MvcResult registerAndLogin() throws Exception {
         String unique = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         RegisterRequest register = new RegisterRequest();

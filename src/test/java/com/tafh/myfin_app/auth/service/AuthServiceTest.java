@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthServiceTest {
 
         @InjectMocks private AuthService authService;
-        @Mock private UserService userService;
         @Mock private UserRepository userRepository;
         @Mock private UserMapper userMapper;
         @Mock private RefreshTokenService refreshTokenService;
@@ -59,7 +58,7 @@ class AuthServiceTest {
 
     @Test
     void testRegisterUser_success() {
-        //arrange
+
         when(userRepository.existsByUsername("john")).thenReturn(false);
         when(userRepository.existsByEmail("john@gmail.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("hashed");
@@ -74,10 +73,8 @@ class AuthServiceTest {
                 .build();
         when(userMapper.toUserProfileResponse(mappedUser)).thenReturn(response);
 
-        // act
         UserProfileResponse result = authService.register(registerRequest);
 
-        // assert & verify
         assertNotNull(result);
         assertEquals("john", result.getUsername());
         verify(userRepository, times(1)).save(mappedUser);

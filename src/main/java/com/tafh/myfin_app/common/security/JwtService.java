@@ -71,8 +71,10 @@ public class JwtService {
      */
     public boolean isTokenValid(String token) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token);
+            Date expiration = claims.getExpiration();
+
+            return expiration != null && expiration.after(new Date());
         } catch (Exception e) {
             return false;
         }

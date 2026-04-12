@@ -16,7 +16,6 @@ import com.tafh.myfin_app.user.enums.Role;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
-import com.tafh.myfin_app.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -93,7 +92,6 @@ public class AuthService {
 
         if (rawRefreshToken == null || rawRefreshToken.isBlank()) throw new UnauthorizedException("Refresh token is missing");
 
-        // rotate token (revoke old + create new
         RotateTokenResult rotateTokenResult = refreshTokenService.rotateRefreshToken(rawRefreshToken);
         UserEntity user = rotateTokenResult.getUser();
 

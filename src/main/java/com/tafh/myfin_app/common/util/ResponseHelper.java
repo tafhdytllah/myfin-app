@@ -31,7 +31,9 @@ public class ResponseHelper {
                 .body(ApiResponse.success(data));
     }
 
-    // ===== FOR VALIDATION ERROR ====
+    /**
+     * FOR VALIDATION ERROR
+     */
     public static ResponseEntity<ApiResponse<Object>> error(
             HttpStatus status,
             ErrorCode code,
@@ -48,7 +50,9 @@ public class ResponseHelper {
                 .body(ApiResponse.error(errorResponse));
     }
 
-    // ===== FOR GENERAL / BUSINESS ERROR ====
+    /**
+     * FOR GENERAL / BUSINESS ERROR
+     */
     public static ResponseEntity<ApiResponse<Object>> error(
             HttpStatus status,
             ErrorCode code,
