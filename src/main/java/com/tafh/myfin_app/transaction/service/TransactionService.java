@@ -97,15 +97,10 @@ public class TransactionService {
         TransactionEntity trx = transactionRepository.findByIdAndAccountUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
-        LogHelper.warn("TRX {}", trx);
         if (trx.getType() == TransactionType.INCOME) {
-            LogHelper.warn("MASUK DECREASE");
             trx.getAccount().decreaseBalance(trx.getAmount());
-            LogHelper.warn("MASUK DECREASE END");
         }  else {
-            LogHelper.warn("MASUK INCREASE");
             trx.getAccount().increaseBalance(trx.getAmount());
-            LogHelper.warn("MASUK INCREASE END");
         }
         transactionRepository.delete(trx);
     }
@@ -114,8 +109,8 @@ public class TransactionService {
     public TransactionSummaryResponse getSummary(String accountId) {
         String userId = SecurityUtil.getCurrentUserId();
 
-        BigDecimal totalIncome = transactionRepository.sumByAccountAndUserAndType(userId, accountId, TransactionType.INCOME);
-        BigDecimal totalExpense = transactionRepository.sumByAccountAndUserAndType(userId, accountId, TransactionType.EXPENSE);
+        BigDecimal totalIncome = transactionRepository.sumByAccountAndUserAndType(accountId, userId, TransactionType.INCOME);
+        BigDecimal totalExpense = transactionRepository.sumByAccountAndUserAndType(accountId, userId, TransactionType.EXPENSE);
 
         return TransactionSummaryResponse.builder()
                 .totalIncome(totalIncome)

@@ -14,11 +14,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AccountEntity extends BaseEntity {
 
-    @Column(name = "name",  length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(name = "balance", precision = 19, scale = 2, nullable = false)
-    private BigDecimal balance = BigDecimal.ZERO;
+    @Column(precision = 19, scale = 2, nullable = false)
+    private BigDecimal balance;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

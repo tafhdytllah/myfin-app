@@ -15,14 +15,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class TransactionEntity extends BaseEntity {
 
-    @Column(name = "amount", precision = 19, scale = 2, nullable = false)
+    @Column(precision = 19, scale = 2, nullable = false)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", length = 10, nullable = false)
+    @Column(length = 10, nullable = false)
     private TransactionType type;
 
-    @Column(name = "description")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -20,13 +20,25 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("""
             SELECT COALESCE(SUM(t.amount), 0)
                 FROM TransactionEntity t
-                    WHERE t.account.user.id = :userId
-                       AND t.account.id = :accountId
+                    WHERE t.account.id = :accountId
+                       AND t.account.user.id = :userId
                           AND t.type = :type
             """)
     BigDecimal sumByAccountAndUserAndType(
-            @Param("userId") String userId,
             @Param("accountId") String accountId,
+            @Param("userId") String userId,
+            @Param("type") TransactionType type
+    );
+
+
+    @Query("""
+            SELECT COALESCE(SUM(t.amount), 0)
+                FROM TransactionEntity t
+                    WHERE t.account.user.id = :userId
+                                AND t.type = :type
+            """)
+    BigDecimal sumByUserAndType(
+            @Param("userId") String userId,
             @Param("type") TransactionType type
     );
 

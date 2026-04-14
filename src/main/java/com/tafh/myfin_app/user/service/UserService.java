@@ -8,6 +8,7 @@ import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional(readOnly = true)
     public UserProfileResponse getCurrentUser() {
         String userId = SecurityUtil.getCurrentUserId();
 
@@ -25,6 +27,7 @@ public class UserService {
         return userMapper.toUserProfileResponse(user);
     }
 
+    @Transactional(readOnly = true)
     public UserEntity findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UnauthorizedException("invalid username"));

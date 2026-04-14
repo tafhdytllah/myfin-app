@@ -27,7 +27,7 @@ public class UserEntity extends BaseEntity {
     @Column(length = 20, nullable = false)
     private Role role;
 
-    @Column(name = "isActive", nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     public UserEntity(String username, String email, String passwordHash, Role role) {
