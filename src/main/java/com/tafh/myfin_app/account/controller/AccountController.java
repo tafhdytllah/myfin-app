@@ -45,6 +45,6 @@ public class AccountController {
     public ResponseEntity<ApiResponse<AccountResponse>> delete(@PathVariable String id) {
         accountService.delete(id);
 
-        return ResponseHelper.ok(null, "Account deleted");
+        return ResponseHelper.ok(null, "Account has been deleted");
     }
 }

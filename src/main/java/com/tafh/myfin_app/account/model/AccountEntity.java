@@ -48,12 +48,12 @@ public class AccountEntity extends BaseEntity {
         this.name = name;
     }
 
-    public void deposit(BigDecimal amount) {
+    public void increaseBalance(BigDecimal amount) {
         validateAmount(amount);
         this.balance = this.balance.add(amount);
     }
 
-    public void withdraw(BigDecimal amount) {
+    public void decreaseBalance(BigDecimal amount) {
         validateAmount(amount);
 
         if (this.balance.compareTo(amount) <= 0) {
