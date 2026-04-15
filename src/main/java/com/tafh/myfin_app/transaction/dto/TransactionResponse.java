@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.transaction.dto;
 
 
-import com.tafh.myfin_app.transaction.enums.TransactionType;
+import com.tafh.myfin_app.category.model.CategoryType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -18,9 +18,11 @@ public class TransactionResponse {
 
     private String accountId;
 
+    private String categoryId;
+
     private BigDecimal amount;
 
-    private TransactionType type;
+    private CategoryType type;
 
     private String description;
 

@@ -11,6 +11,7 @@ public class TransactionMapper {
         return TransactionResponse.builder()
                 .id(trx.getId())
                 .accountId(trx.getAccount().getId())
+                .categoryId(trx.getCategory().getId())
                 .amount(trx.getAmount())
                 .type(trx.getType())
                 .description(trx.getDescription())

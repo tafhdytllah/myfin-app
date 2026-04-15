@@ -1,5 +1,5 @@
 -- =============================
--- V3: Create accounts table
+-- V4: Create accounts table
 -- =============================
 
 CREATE TABLE public.accounts

@@ -1,6 +1,6 @@
 package com.tafh.myfin_app.transaction.repository;
 
-import com.tafh.myfin_app.transaction.enums.TransactionType;
+import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +27,7 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     BigDecimal sumByAccountAndUserAndType(
             @Param("accountId") String accountId,
             @Param("userId") String userId,
-            @Param("type") TransactionType type
+            @Param("type") CategoryType type
     );
 
 
@@ -39,7 +39,7 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             """)
     BigDecimal sumByUserAndType(
             @Param("userId") String userId,
-            @Param("type") TransactionType type
+            @Param("type") CategoryType type
     );
 
 }

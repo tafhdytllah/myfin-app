@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.user.mapper;
 
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
-import com.tafh.myfin_app.user.enums.Role;
+import com.tafh.myfin_app.user.model.Role;
 import com.tafh.myfin_app.user.model.UserEntity;
 import org.springframework.stereotype.Component;
 

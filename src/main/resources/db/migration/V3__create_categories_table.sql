@@ -1,5 +1,5 @@
 -- =============================
--- V5: Create categories table
+-- V3: Create categories table
 -- =============================
 
 CREATE TABLE categories

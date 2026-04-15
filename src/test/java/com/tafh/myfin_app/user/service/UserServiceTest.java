@@ -3,7 +3,7 @@ package com.tafh.myfin_app.user.service;
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
 import com.tafh.myfin_app.common.security.SecurityUtil;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
-import com.tafh.myfin_app.user.enums.Role;
+import com.tafh.myfin_app.user.model.Role;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;

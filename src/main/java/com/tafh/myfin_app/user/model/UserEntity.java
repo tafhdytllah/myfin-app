@@ -1,7 +1,6 @@
 package com.tafh.myfin_app.user.model;
 
 import com.tafh.myfin_app.common.model.BaseEntity;
-import com.tafh.myfin_app.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

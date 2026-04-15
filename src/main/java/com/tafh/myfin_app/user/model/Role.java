@@ -1,4 +1,4 @@
-package com.tafh.myfin_app.user.enums;
+package com.tafh.myfin_app.user.model;
 
 public enum Role {
     USER,

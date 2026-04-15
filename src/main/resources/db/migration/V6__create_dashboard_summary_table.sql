@@ -1,5 +1,5 @@
 -- =============================
--- V5: Create dashboard summary table
+-- V6: Create dashboard summary table
 -- =============================
 
 CREATE TABLE dashboard_summary

@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tafh.myfin_app.user.enums.Role;
+import com.tafh.myfin_app.user.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

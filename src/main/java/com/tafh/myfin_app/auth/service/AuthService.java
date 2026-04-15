@@ -12,7 +12,7 @@ import com.tafh.myfin_app.common.security.JwtService;
 import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.refresh_token.service.RefreshTokenService;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
-import com.tafh.myfin_app.user.enums.Role;
+import com.tafh.myfin_app.user.model.Role;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;

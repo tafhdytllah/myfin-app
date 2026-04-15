@@ -3,7 +3,7 @@ package com.tafh.myfin_app.user.controller;
 import com.tafh.myfin_app.common.security.JwtService;
 import com.tafh.myfin_app.config.TestSecurityConfig;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
-import com.tafh.myfin_app.user.enums.Role;
+import com.tafh.myfin_app.user.model.Role;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import com.tafh.myfin_app.user.service.UserService;
 import org.junit.jupiter.api.Test;
