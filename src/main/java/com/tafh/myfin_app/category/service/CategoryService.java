@@ -12,6 +12,8 @@ import com.tafh.myfin_app.common.security.SecurityUtil;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,19 +44,16 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getAll(CategoryType type) {
+    public Page<CategoryResponse> getAll(CategoryType type, Pageable pageable) {
         String userId = SecurityUtil.getCurrentUserId();
         userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 
-        List<CategoryEntity> categories = (type == null)
-                ? categoryRepository.findByUserId(userId)
-                : categoryRepository.findByUserIdAndType(userId, type);
+        Page<CategoryEntity> page = (type == null)
+                ? categoryRepository.findByUserId(userId, pageable)
+                : categoryRepository.findByUserIdAndType(userId, type, pageable);
 
-        return categories
-                .stream()
-                .map(categoryMapper::toCategoryResponse)
-                .toList();
+        return page.map(categoryMapper::toCategoryResponse);
     }
 
     @Transactional(readOnly = true)
