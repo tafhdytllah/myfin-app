@@ -10,6 +10,8 @@ import com.tafh.myfin_app.common.security.SecurityUtil;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +44,12 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<AccountResponse> findAll() {
+    public Page<AccountResponse> findAll(Pageable pageable) {
         String userId = SecurityUtil.getCurrentUserId();
 
-        return accountRepository.findAllByUserId(userId)
-                .stream()
-                .map(accountMapper::toAccountResponse)
-                .toList();
+        Page<AccountEntity> page = accountRepository.findAllByUserId(userId, pageable);
+
+        return page.map(accountMapper::toAccountResponse);
     }
 
     @Transactional(readOnly = true)
