@@ -18,8 +18,30 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
-
-    Page<TransactionEntity> findByAccountIdAndAccountUserId(String accountId, String userId, Pageable pageable);
+    @Query("""
+                SELECT t FROM TransactionEntity t
+                WHERE t.account.user.id = :userId
+                  AND (:accountId IS NULL OR t.account.id = :accountId)
+                  AND (:type IS NULL OR t.type = :type)
+                  AND (:categoryId IS NULL OR t.category.id = :categoryId)
+                  AND t.createdAt >= :startDate
+                  AND t.createdAt <= :endDate
+                  AND (
+                        :keyword IS NULL
+                        OR t.description ILIKE CONCAT('%', :keyword, '%')
+                        OR t.category.name ILIKE CONCAT('%', :keyword, '%')
+                      )
+            """)
+    Page<TransactionEntity> findAllWithFilter(
+            @Param("userId") String userId,
+            @Param("accountId") String accountId,
+            @Param("type") CategoryType type,
+            @Param("categoryId") String categoryId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
 
     Optional<TransactionEntity> findByIdAndAccountUserId(String id, String userId);
 

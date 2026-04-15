@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.transaction.controller;
 
+import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.dto.MetaMapper;
 import com.tafh.myfin_app.common.dto.MetaResponse;
@@ -11,9 +12,11 @@ import com.tafh.myfin_app.transaction.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,10 +34,24 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<TransactionResponse>>> getAll(
-            @RequestParam String accountId,
+            @RequestParam(required = false) String accountId,
+            @RequestParam(required = false) CategoryType type,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        Page<TransactionResponse> page = transactionService.getAll(accountId, pageable);
+        Page<TransactionResponse> page = transactionService.getAll(
+                accountId,
+                type,
+                categoryId,
+                startDate,
+                endDate,
+                keyword,
+                pageable
+        );
+
         MetaResponse meta = metaMapper.buildMetaResponse(page);
 
         return ResponseHelper.ok(page.getContent(), meta);

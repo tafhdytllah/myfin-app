@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -64,11 +67,36 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TransactionResponse> getAll(String accountId, Pageable pageable) {
+    public Page<TransactionResponse> getAll(
+            String accountId,
+            CategoryType type,
+            String categoryId,
+            LocalDate startDate,
+            LocalDate endDate,
+            String keyword,
+            Pageable pageable
+    ) {
         String userId = SecurityUtil.getCurrentUserId();
 
+        LocalDateTime start = startDate != null
+                ? startDate.atStartOfDay()
+                : LocalDateTime.of(1970, 1, 1, 0, 0);
+
+        LocalDateTime end = endDate != null
+                ? endDate.atTime(LocalTime.MAX)
+                : LocalDateTime.now();
+
         Page<TransactionEntity> page = transactionRepository
-                .findByAccountIdAndAccountUserId(accountId, userId, pageable);
+                .findAllWithFilter(
+                        userId,
+                        accountId,
+                        type,
+                        categoryId,
+                        start,
+                        end,
+                        keyword,
+                        pageable
+                );
 
         return page.map(transactionMapper::toTransactionResponse);
     }
