@@ -15,7 +15,7 @@ public class ApiResponse<T> {
 
     private T data;
     private String message;
-    private PagingResponse paging;
+    private MetaResponse meta;
     private ErrorResponse errors;
 
     public static <T> ApiResponse<T> success(T data) {
@@ -31,10 +31,10 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> success(T data, PagingResponse paging) {
+    public static <T> ApiResponse<T> success(T data, MetaResponse meta) {
         return ApiResponse.<T>builder()
                 .data(data)
-                .paging(paging)
+                .meta(meta)
                 .build();
     }
 

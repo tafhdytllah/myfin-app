@@ -3,7 +3,7 @@ package com.tafh.myfin_app.common.util;
 import com.tafh.myfin_app.common.constant.ErrorCode;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.dto.ErrorResponse;
-import com.tafh.myfin_app.common.dto.PagingResponse;
+import com.tafh.myfin_app.common.dto.MetaResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,8 @@ public class ResponseHelper {
         return ResponseEntity.ok(ApiResponse.success(data, message));
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> ok(T data, PagingResponse paging) {
-        return ResponseEntity.ok(ApiResponse.success(data, paging));
+    public static <T> ResponseEntity<ApiResponse<T>> ok(T data, MetaResponse meta) {
+        return ResponseEntity.ok(ApiResponse.success(data, meta));
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> created(T data) {

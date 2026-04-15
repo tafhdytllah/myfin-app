@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
 
-    Page<TransactionEntity> findByAccountId(String accountId, Pageable pageable);
+    Page<TransactionEntity> findByAccountIdAndAccountUserId(String accountId, String userId, Pageable pageable);
 
     Optional<TransactionEntity> findByIdAndAccountUserId(String id, String userId);
 

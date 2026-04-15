@@ -1,7 +1,8 @@
 package com.tafh.myfin_app.transaction.controller;
 
 import com.tafh.myfin_app.common.dto.ApiResponse;
-import com.tafh.myfin_app.common.util.LogHelper;
+import com.tafh.myfin_app.common.dto.MetaMapper;
+import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
 import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
@@ -21,6 +22,7 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final MetaMapper metaMapper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<TransactionResponse>> create(@RequestBody TransactionRequest request) {
@@ -32,9 +34,10 @@ public class TransactionController {
             @RequestParam String accountId,
             Pageable pageable
     ) {
-        var result = transactionService.getAll(accountId, pageable);
+        Page<TransactionResponse> page = transactionService.getAll(accountId, pageable);
+        MetaResponse meta = metaMapper.buildMetaResponse(page);
 
-        return ResponseHelper.ok(result.getData(), result.getPaging());
+        return ResponseHelper.ok(page.getContent(), meta);
     }
 
     @GetMapping("/{id}")

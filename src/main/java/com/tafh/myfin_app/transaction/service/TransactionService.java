@@ -6,7 +6,8 @@ import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
 import com.tafh.myfin_app.common.dto.ApiResponse;
-import com.tafh.myfin_app.common.dto.PagingResponse;
+import com.tafh.myfin_app.common.dto.MetaMapper;
+import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.exception.BadRequestException;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
 import com.tafh.myfin_app.common.security.SecurityUtil;
@@ -33,6 +34,7 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionMapper transactionMapper;
     private final CategoryRepository categoryRepository;
+    private final MetaMapper metaMapper;
 
     @Transactional
     public TransactionResponse create(TransactionRequest request) {
@@ -62,28 +64,13 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public ApiResponse<List<TransactionResponse>> getAll(String accountId, Pageable pageable) {
+    public Page<TransactionResponse> getAll(String accountId, Pageable pageable) {
         String userId = SecurityUtil.getCurrentUserId();
 
-        AccountEntity account = accountRepository.findByIdAndUserId(accountId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        Page<TransactionEntity> page = transactionRepository
+                .findByAccountIdAndAccountUserId(accountId, userId, pageable);
 
-        Page<TransactionEntity> page = transactionRepository.findByAccountId(account.getId(), pageable);
-
-        List<TransactionResponse> data = page
-                .map(transactionMapper::toTransactionResponse)
-                .getContent();
-
-        PagingResponse paging = PagingResponse.builder()
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalPages(page.getTotalPages())
-                .totalElements(page.getTotalElements())
-                .hasNext(page.hasNext())
-                .hasPrevious(page.hasPrevious())
-                .build();
-
-        return ApiResponse.success(data, paging);
+        return page.map(transactionMapper::toTransactionResponse);
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +92,7 @@ public class TransactionService {
 
         if (trx.getType() == CategoryType.INCOME) {
             trx.getAccount().decreaseBalance(trx.getAmount());
-        }  else {
+        } else {
             trx.getAccount().increaseBalance(trx.getAmount());
         }
         transactionRepository.delete(trx);
