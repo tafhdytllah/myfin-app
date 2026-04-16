@@ -18,6 +18,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
+
+    @Query("""
+                    SELECT t
+                    FROM TransactionEntity t
+                    JOIN FETCH t.category
+                    JOIN FETCH t.account a
+                    JOIN FETCH a.user
+                    WHERE a.user.id = :userId
+            """)
+    List<TransactionEntity> findAllByUserIdForExport(
+            @Param("userId") String userId
+    );
+
     @Query("""
                 SELECT t FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
