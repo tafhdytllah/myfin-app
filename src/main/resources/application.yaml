@@ -43,7 +43,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    show-sql: false
+        dialect:
+          default_param_cast: true
+    show-sql: true
 
   jackson:
     serialization:

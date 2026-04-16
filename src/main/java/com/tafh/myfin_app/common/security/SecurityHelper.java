@@ -4,8 +4,10 @@ import com.tafh.myfin_app.common.exception.UnauthorizedException;
 import com.tafh.myfin_app.user.model.UserEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
-public class SecurityUtil {
+@Component
+public class SecurityHelper {
 
     public static String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

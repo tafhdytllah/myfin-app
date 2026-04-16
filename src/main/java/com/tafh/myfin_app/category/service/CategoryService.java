@@ -8,7 +8,7 @@ import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse create(CategoryRequest request) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
@@ -45,7 +43,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> getAll(CategoryType type, Pageable pageable) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
         userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 
@@ -58,7 +56,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryResponse getById(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 
@@ -70,7 +68,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse update(String id, CategoryRequest request) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 
@@ -87,7 +85,7 @@ public class CategoryService {
 
     @Transactional
     public void deleteById(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 

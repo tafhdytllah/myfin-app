@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.user.service;
 
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.model.Role;
 import com.tafh.myfin_app.user.mapper.UserMapper;
@@ -32,8 +32,8 @@ class UserServiceTest {
     @Test
     void shouldReturnCurrentUser_success() {
 
-        try (MockedStatic<SecurityUtil> mocked = mockStatic(SecurityUtil.class)) {
-            mocked.when(SecurityUtil::getCurrentUserId).thenReturn("user-1");
+        try (MockedStatic<SecurityHelper> mocked = mockStatic(SecurityHelper.class)) {
+            mocked.when(SecurityHelper::getCurrentUserId).thenReturn("user-1");
 
             UserEntity user = mock(UserEntity.class);
 
@@ -61,10 +61,10 @@ class UserServiceTest {
 
     @Test
     void shouldThrow_whenUserNotFound() {
-        try (MockedStatic<SecurityUtil> mocked =
-                     mockStatic(SecurityUtil.class)) {
+        try (MockedStatic<SecurityHelper> mocked =
+                     mockStatic(SecurityHelper.class)) {
 
-            mocked.when(SecurityUtil::getCurrentUserId)
+            mocked.when(SecurityHelper::getCurrentUserId)
                     .thenReturn("user-1");
 
             when(userRepository.findById("user-1")).thenReturn(Optional.empty());

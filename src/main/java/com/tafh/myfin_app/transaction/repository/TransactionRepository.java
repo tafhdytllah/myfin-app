@@ -24,12 +24,12 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                   AND (:accountId IS NULL OR t.account.id = :accountId)
                   AND (:type IS NULL OR t.type = :type)
                   AND (:categoryId IS NULL OR t.category.id = :categoryId)
-                  AND t.createdAt >= :startDate
-                  AND t.createdAt <= :endDate
+                  AND t.createdAt >= :startDateTime
+                  AND t.createdAt <= :endDateTime
                   AND (
-                        :keyword IS NULL
-                        OR t.description ILIKE CONCAT('%', :keyword, '%')
-                        OR t.category.name ILIKE CONCAT('%', :keyword, '%')
+                        :searchTerm IS NULL
+                        OR LOWER(t.description) LIKE :searchTerm ESCAPE '\\'
+                        OR LOWER(t.category.name) LIKE :searchTerm ESCAPE '\\'
                       )
             """)
     Page<TransactionEntity> findAllWithFilter(
@@ -37,9 +37,9 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             @Param("accountId") String accountId,
             @Param("type") CategoryType type,
             @Param("categoryId") String categoryId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            @Param("keyword") String keyword,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
 

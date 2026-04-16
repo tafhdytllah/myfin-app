@@ -4,7 +4,7 @@ import com.tafh.myfin_app.analytics.dto.BiggestTransactionResponse;
 import com.tafh.myfin_app.analytics.dto.MonthlyTrendResponse;
 import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
 import com.tafh.myfin_app.analytics.dto.SummaryResponse;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
 import com.tafh.myfin_app.transaction.projection.MonthlyTrendProjection;
 import com.tafh.myfin_app.transaction.projection.SpendingByCategoryProjection;
@@ -33,7 +33,7 @@ public class AnalyticsService {
             YearMonth month
     ) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         LocalDateTime start;
         LocalDateTime end;
@@ -61,7 +61,7 @@ public class AnalyticsService {
     @Transactional(readOnly = true)
     public SummaryResponse summary(String accountId) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         SummaryProjection row = transactionRepository.summary(userId, accountId);
 
@@ -78,7 +78,7 @@ public class AnalyticsService {
     @Transactional(readOnly = true)
     public List<MonthlyTrendResponse> monthlyTrend(String accountId, Integer year) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         LocalDateTime start = LocalDate.of(year, 1, 1).atStartOfDay();
         LocalDateTime end = LocalDate.of(year, 12, 31).atTime(LocalTime.MAX);
@@ -102,7 +102,7 @@ public class AnalyticsService {
     @Transactional(readOnly = true)
     public BiggestTransactionResponse biggestTransaction(String accountId) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         List<TransactionEntity> list =
                 transactionRepository.findBiggest(userId, accountId);

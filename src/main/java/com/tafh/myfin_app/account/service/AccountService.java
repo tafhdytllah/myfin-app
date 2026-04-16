@@ -6,7 +6,8 @@ import com.tafh.myfin_app.account.mapper.AccountMapper;
 import com.tafh.myfin_app.account.model.AccountEntity;
 import com.tafh.myfin_app.account.repository.AccountRepository;
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.util.LikeQueryHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class AccountService {
 
     @Transactional
     public AccountResponse create(AccountRequest request) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
@@ -44,17 +43,26 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AccountResponse> findAll(Pageable pageable) {
-        String userId = SecurityUtil.getCurrentUserId();
+    public Page<AccountResponse> findAll(
+            String keyword,
+            Pageable pageable
+    ) {
+        String userId = SecurityHelper.getCurrentUserId();
 
-        Page<AccountEntity> page = accountRepository.findAllByUserId(userId, pageable);
+        String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
+
+        Page<AccountEntity> page = accountRepository.findAllWithFilter(
+                userId,
+                searchTerm,
+                pageable
+        );
 
         return page.map(accountMapper::toAccountResponse);
     }
 
     @Transactional(readOnly = true)
     public AccountResponse findById(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         AccountEntity account = accountRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new UnauthorizedException("Account not found"));
@@ -64,7 +72,7 @@ public class AccountService {
 
     @Transactional
     public AccountResponse update(String id, AccountRequest request) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         AccountEntity account = accountRepository.findById(id)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
@@ -82,7 +90,7 @@ public class AccountService {
 
     @Transactional
     public void delete(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         AccountEntity account = accountRepository.findById(id)
                 .orElseThrow(() -> new UnauthorizedException("Account not found"));

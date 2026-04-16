@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.user.service;
 
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
@@ -19,7 +19,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserProfileResponse getCurrentUser() {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));

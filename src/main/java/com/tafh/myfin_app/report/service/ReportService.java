@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.report.service;
 
 import com.tafh.myfin_app.category.model.CategoryType;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.report.dto.MonthlyReportResponse;
 import com.tafh.myfin_app.report.dto.ReportResponse;
 import com.tafh.myfin_app.report.mapper.ReportMapper;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public ReportResponse getDaily(String accountId, LocalDate date) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         if (date == null) {
             date = LocalDate.now();
@@ -60,7 +59,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public ReportResponse getWeekly(String accountId, LocalDate date) {
 
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         if (date == null) {
             date = LocalDate.now();
@@ -92,7 +91,7 @@ public class ReportService {
 
     @Transactional(readOnly = true)
     public List<MonthlyReportResponse> getMonthly(String accountId, Integer year) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         if (year == null) {
             year = Year.now().getValue();

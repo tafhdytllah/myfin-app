@@ -5,12 +5,12 @@ import com.tafh.myfin_app.account.repository.AccountRepository;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
-import com.tafh.myfin_app.common.dto.ApiResponse;
-import com.tafh.myfin_app.common.dto.MetaMapper;
-import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.exception.BadRequestException;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
-import com.tafh.myfin_app.common.security.SecurityUtil;
+import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.util.DateRangeHelper;
+import com.tafh.myfin_app.common.util.LikeQueryHelper;
+import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
 import com.tafh.myfin_app.transaction.dto.TransactionSummaryResponse;
@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +36,10 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionMapper transactionMapper;
     private final CategoryRepository categoryRepository;
-    private final MetaMapper metaMapper;
 
     @Transactional
     public TransactionResponse create(TransactionRequest request) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         AccountEntity account = accountRepository.findByIdAndUserId(request.getAccountId(), userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
@@ -76,15 +74,11 @@ public class TransactionService {
             String keyword,
             Pageable pageable
     ) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
-        LocalDateTime start = startDate != null
-                ? startDate.atStartOfDay()
-                : LocalDateTime.of(1970, 1, 1, 0, 0);
+        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
-        LocalDateTime end = endDate != null
-                ? endDate.atTime(LocalTime.MAX)
-                : LocalDateTime.now();
+        String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
 
         Page<TransactionEntity> page = transactionRepository
                 .findAllWithFilter(
@@ -92,9 +86,9 @@ public class TransactionService {
                         accountId,
                         type,
                         categoryId,
-                        start,
-                        end,
-                        keyword,
+                        rangeDateTime.startDateTime(),
+                        rangeDateTime.endDateTime(),
+                        searchTerm,
                         pageable
                 );
 
@@ -103,7 +97,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public TransactionResponse getById(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         TransactionEntity trx = transactionRepository.findByIdAndAccountUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
@@ -113,7 +107,7 @@ public class TransactionService {
 
     @Transactional
     public void delete(String id) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         TransactionEntity trx = transactionRepository.findByIdAndAccountUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
@@ -128,7 +122,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public TransactionSummaryResponse getSummary(String accountId) {
-        String userId = SecurityUtil.getCurrentUserId();
+        String userId = SecurityHelper.getCurrentUserId();
 
         BigDecimal totalIncome = transactionRepository.sumByAccountAndUserAndType(accountId, userId, CategoryType.INCOME);
         BigDecimal totalExpense = transactionRepository.sumByAccountAndUserAndType(accountId, userId, CategoryType.EXPENSE);

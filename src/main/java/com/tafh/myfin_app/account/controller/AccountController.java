@@ -29,9 +29,12 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<AccountResponse>>> findAll(Pageable pageable) {
+    public ResponseEntity<ApiResponse<List<AccountResponse>>> findAll(
+            @RequestParam(required = false) String keyword,
+            Pageable pageable
+    ) {
 
-        Page<AccountResponse> page = accountService.findAll(pageable);
+        Page<AccountResponse> page = accountService.findAll(keyword, pageable);
         MetaResponse meta = metaMapper.buildMetaResponse(page);
 
         return ResponseHelper.ok(page.getContent(), meta);
