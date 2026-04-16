@@ -4,6 +4,7 @@ import com.tafh.myfin_app.category.model.CategoryType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,6 +20,8 @@ public class BiggestTransactionResponse {
     private CategoryType type;
 
     private BigDecimal amount;
+
+    private LocalDateTime createdAt;
 
     private String description;
 

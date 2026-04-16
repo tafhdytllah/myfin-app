@@ -6,8 +6,11 @@ import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
 import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
 import com.tafh.myfin_app.analytics.service.AnalyticsService;
 import com.tafh.myfin_app.common.dto.ApiResponse;
+import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
+import com.tafh.myfin_app.transaction.dto.TransactionResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +30,7 @@ public class AnalyticsController {
 
 
     @GetMapping("/spending-by-category")
-    public ResponseEntity<ApiResponse<List<SpendingByCategoryResponse>>> spending(
+    public ResponseEntity<ApiResponse<List<SpendingByCategoryResponse>>> spendingByCategory(
             @RequestParam(required = false) String accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -43,7 +46,7 @@ public class AnalyticsController {
 
 
     @GetMapping("/income-expense-summary")
-    public ResponseEntity<ApiResponse<IncomeExpenseSummaryResponse>> summary(
+    public ResponseEntity<ApiResponse<IncomeExpenseSummaryResponse>> summaryExpenseSummary(
             @RequestParam(required = false) String accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -68,10 +71,21 @@ public class AnalyticsController {
 
 
     @GetMapping("/biggest-transaction")
-    public ResponseEntity<ApiResponse<BiggestTransactionResponse>> biggestTransaction(
-            @RequestParam(required = false) String accountId
+    public ResponseEntity<ApiResponse<List<BiggestTransactionResponse>>> biggestTransaction(
+            @RequestParam(required = false) String accountId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "1") int limit
     ) {
-        return ResponseHelper.ok(analyticsService.biggestTransaction(accountId));
+
+        Page<BiggestTransactionResponse> page = analyticsService.biggestTransaction(
+                accountId,
+                startDate,
+                endDate,
+                limit
+        );
+
+        return ResponseHelper.ok(page.getContent());
     }
 
 }

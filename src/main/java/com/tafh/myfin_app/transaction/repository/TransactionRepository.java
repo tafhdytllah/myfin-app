@@ -98,15 +98,15 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                 FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
                     AND (:accountId IS NULL OR t.account.id = :accountId)
-                    AND t.createdAt BETWEEN :start AND :end
+                    AND t.createdAt BETWEEN :startDateTime AND :endDateTime
                 GROUP BY FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM')
                 ORDER BY FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM')
             """)
     List<MonthlySummaryProjection> monthlySummary(
             @Param("userId") String userId,
             @Param("accountId") String accountId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
     );
 
     @Query("""
@@ -175,8 +175,16 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                 FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
                   AND (:accountId IS NULL OR t.account.id = :accountId)
+                  AND t.createdAt >= :startDateTime
+                  AND t.createdAt <= :endDateTime
                 ORDER BY t.amount DESC
             """)
-    List<TransactionEntity> findBiggest(String userId, String accountId);
+    Page<TransactionEntity> findBiggestTransaction(
+            @Param("userId") String userId,
+            @Param("accountId") String accountId,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            Pageable pageable
+    );
 
 }

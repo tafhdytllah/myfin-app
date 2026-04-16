@@ -4,6 +4,7 @@ import com.tafh.myfin_app.analytics.dto.BiggestTransactionResponse;
 import com.tafh.myfin_app.analytics.dto.MonthlyTrendResponse;
 import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
 import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
+import com.tafh.myfin_app.analytics.mapper.BiggestTransactionMapper;
 import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.common.util.DateRangeHelper;
 import com.tafh.myfin_app.common.util.NumberHelper;
@@ -13,6 +14,9 @@ import com.tafh.myfin_app.transaction.projection.SpendingByCategoryProjection;
 import com.tafh.myfin_app.transaction.projection.IncomeExpenseSummaryProjection;
 import com.tafh.myfin_app.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +31,7 @@ import java.util.List;
 public class AnalyticsService {
 
     private final TransactionRepository transactionRepository;
+    private final BiggestTransactionMapper biggestTransactionMapper;
 
     @Transactional(readOnly = true)
     public List<SpendingByCategoryResponse> getSpendingByCategory(
@@ -50,11 +55,11 @@ public class AnalyticsService {
         return rows.stream()
                 .map(row ->
                         SpendingByCategoryResponse.builder()
-                            .categoryId(row.getCategoryId())
-                            .categoryName(row.getCategoryName())
-                            .type(row.getType())
-                            .total(row.getTotal() != null ? row.getTotal() : BigDecimal.ZERO)
-                            .build()
+                                .categoryId(row.getCategoryId())
+                                .categoryName(row.getCategoryName())
+                                .type(row.getType())
+                                .total(row.getTotal() != null ? row.getTotal() : BigDecimal.ZERO)
+                                .build()
                 ).toList();
     }
 
@@ -122,26 +127,29 @@ public class AnalyticsService {
     }
 
     @Transactional(readOnly = true)
-    public BiggestTransactionResponse biggestTransaction(String accountId) {
+    public Page<BiggestTransactionResponse> biggestTransaction(
+            String accountId,
+            LocalDate startDate,
+            LocalDate endDate,
+            int limit
+    ) {
 
         String userId = SecurityHelper.getCurrentUserId();
 
-        List<TransactionEntity> list =
-                transactionRepository.findBiggest(userId, accountId);
+        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
-        if (list.isEmpty()) {
-            return null;
-        }
+        Pageable pageable = PageRequest.of(0, limit);
 
-        TransactionEntity t = list.get(0);
+        Page<TransactionEntity> page = transactionRepository
+                .findBiggestTransaction(
+                        userId,
+                        accountId,
+                        rangeDateTime.startDateTime(),
+                        rangeDateTime.endDateTime(),
+                        pageable
+                );
 
-        return BiggestTransactionResponse.builder()
-                .transactionId(t.getId())
-                .categoryName(t.getCategory().getName())
-                .type(t.getCategory().getType())
-                .amount(t.getAmount())
-                .description(t.getDescription())
-                .build();
+        return page.map(biggestTransactionMapper::toBiggestTransactionResponse);
     }
 
 }
