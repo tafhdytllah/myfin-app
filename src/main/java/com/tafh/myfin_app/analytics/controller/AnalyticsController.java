@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -26,16 +25,23 @@ public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
 
-    // 🟢 1
+
     @GetMapping("/spending-by-category")
     public ResponseEntity<ApiResponse<List<SpendingByCategoryResponse>>> spending(
             @RequestParam(required = false) String accountId,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        return ResponseHelper.ok(analyticsService.spendingByCategory(accountId, month));
+        return ResponseHelper.ok(
+                analyticsService.getSpendingByCategory(
+                        accountId,
+                        startDate,
+                        endDate
+                )
+        );
     }
 
-    // 🟢 2
+
     @GetMapping("/income-expense-summary")
     public ResponseEntity<ApiResponse<IncomeExpenseSummaryResponse>> summary(
             @RequestParam(required = false) String accountId,
@@ -51,16 +57,16 @@ public class AnalyticsController {
         );
     }
 
-    // 🟢 3
+
     @GetMapping("/monthly-trend")
     public ResponseEntity<ApiResponse<List<MonthlyTrendResponse>>> monthlyTrend(
             @RequestParam(required = false) String accountId,
             @RequestParam(required = false) Integer year
     ) {
-        return ResponseHelper.ok(analyticsService.monthlyTrend(accountId, year));
+        return ResponseHelper.ok(analyticsService.getMonthlyTrend(accountId, year));
     }
 
-    // 🟢 4
+
     @GetMapping("/biggest-transaction")
     public ResponseEntity<ApiResponse<BiggestTransactionResponse>> biggestTransaction(
             @RequestParam(required = false) String accountId

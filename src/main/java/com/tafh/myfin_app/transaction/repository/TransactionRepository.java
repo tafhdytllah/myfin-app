@@ -114,19 +114,20 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                     t.category.id as categoryId,
                     t.category.name as categoryName,
                     t.category.type as type,
-                    SUM(t.amount) as total
+                    COALESCE(SUM(t.amount), 0) as total
                 FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
                   AND (:accountId IS NULL OR t.account.id = :accountId)
-                  AND t.createdAt BETWEEN :start AND :end
+                  AND t.createdAt >= :startDateTime
+                  AND t.createdAt <= :endDateTime
                 GROUP BY t.category.id, t.category.name, t.category.type
-                ORDER BY total DESC
+                ORDER BY SUM(t.amount) DESC
             """)
-    List<SpendingByCategoryProjection> spendingByCategory(
+    List<SpendingByCategoryProjection> getSpendingByCategory(
             @Param("userId") String userId,
             @Param("accountId") String accountId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
     );
 
     @Query("""
@@ -149,24 +150,24 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("""
                 SELECT
                     FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM') as month,
-                    SUM(CASE
-                        WHEN t.category.type = com.tafh.myfin_app.category.model.CategoryType.INCOME
-                        THEN t.amount ELSE 0 END) as income,
-                    SUM(CASE
-                        WHEN t.category.type = com.tafh.myfin_app.category.model.CategoryType.EXPENSE
-                        THEN t.amount ELSE 0 END) as expense
+                    COALESCE(SUM(CASE WHEN t.category.type = 'INCOME' THEN t.amount ELSE 0 END), 0) as income,
+                    COALESCE(SUM(CASE WHEN t.category.type = 'EXPENSE' THEN t.amount ELSE 0 END), 0) as expense
                 FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
                   AND (:accountId IS NULL OR t.account.id = :accountId)
-                  AND t.createdAt BETWEEN :start AND :end
-                GROUP BY FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM')
-                ORDER BY FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM')
+                  AND t.createdAt >= :startDateTime
+                  AND t.createdAt <= :endDateTime
+                GROUP BY FUNCTION('TO_CHAR', t.createdAt, 'YYYY-MM'),
+                            YEAR(t.createdAt),
+                            MONTH(t.createdAt)
+                ORDER BY YEAR(t.createdAt),
+                         MONTH(t.createdAt)
             """)
-    List<MonthlyTrendProjection> monthlyTrend(
+    List<MonthlyTrendProjection> getMonthlyTrend(
             @Param("userId") String userId,
             @Param("accountId") String accountId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
     );
 
     @Query("""

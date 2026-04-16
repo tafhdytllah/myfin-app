@@ -6,6 +6,7 @@ import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
 import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
 import com.tafh.myfin_app.common.security.SecurityHelper;
 import com.tafh.myfin_app.common.util.DateRangeHelper;
+import com.tafh.myfin_app.common.util.NumberHelper;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
 import com.tafh.myfin_app.transaction.projection.MonthlyTrendProjection;
 import com.tafh.myfin_app.transaction.projection.SpendingByCategoryProjection;
@@ -19,7 +20,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -29,34 +29,33 @@ public class AnalyticsService {
     private final TransactionRepository transactionRepository;
 
     @Transactional(readOnly = true)
-    public List<SpendingByCategoryResponse> spendingByCategory(
+    public List<SpendingByCategoryResponse> getSpendingByCategory(
             String accountId,
-            YearMonth month
+            LocalDate startDate,
+            LocalDate endDate
     ) {
 
         String userId = SecurityHelper.getCurrentUserId();
 
-        LocalDateTime start;
-        LocalDateTime end;
-
-        if (month != null) {
-            start = month.atDay(1).atStartOfDay();
-            end = month.atEndOfMonth().atTime(LocalTime.MAX);
-        } else {
-            start = LocalDateTime.of(1970, 1, 1, 0, 0);
-            end = LocalDateTime.now();
-        }
+        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
         List<SpendingByCategoryProjection> rows = transactionRepository
-                .spendingByCategory(userId, accountId, start, end);
+                .getSpendingByCategory(
+                        userId,
+                        accountId,
+                        rangeDateTime.startDateTime(),
+                        rangeDateTime.endDateTime()
+                );
 
-        return rows.stream().map(r -> SpendingByCategoryResponse.builder()
-                .categoryId(r.getCategoryId())
-                .categoryName(r.getCategoryName())
-                .type(r.getType())
-                .total(r.getTotal() != null ? r.getTotal() : BigDecimal.ZERO)
-                .build()
-        ).toList();
+        return rows.stream()
+                .map(row ->
+                        SpendingByCategoryResponse.builder()
+                            .categoryId(row.getCategoryId())
+                            .categoryName(row.getCategoryName())
+                            .type(row.getType())
+                            .total(row.getTotal() != null ? row.getTotal() : BigDecimal.ZERO)
+                            .build()
+                ).toList();
     }
 
     @Transactional(readOnly = true)
@@ -70,15 +69,16 @@ public class AnalyticsService {
 
         DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
-        IncomeExpenseSummaryProjection summary = transactionRepository.getIncomeExpenseSummary(
-                userId,
-                accountId,
-                rangeDateTime.startDateTime(),
-                rangeDateTime.endDateTime()
-        );
+        IncomeExpenseSummaryProjection summary = transactionRepository
+                .getIncomeExpenseSummary(
+                        userId,
+                        accountId,
+                        rangeDateTime.startDateTime(),
+                        rangeDateTime.endDateTime()
+                );
 
-        BigDecimal income = summary.getIncome() != null ? summary.getIncome() : BigDecimal.ZERO;
-        BigDecimal expense = summary.getExpense() != null ? summary.getExpense() : BigDecimal.ZERO;
+        BigDecimal income = NumberHelper.zeroIfNull(summary.getIncome());
+        BigDecimal expense = NumberHelper.zeroIfNull(summary.getExpense());
 
         return IncomeExpenseSummaryResponse.builder()
                 .totalIncome(income)
@@ -88,24 +88,34 @@ public class AnalyticsService {
     }
 
     @Transactional(readOnly = true)
-    public List<MonthlyTrendResponse> monthlyTrend(String accountId, Integer year) {
+    public List<MonthlyTrendResponse> getMonthlyTrend(
+            String accountId,
+            Integer year
+    ) {
 
         String userId = SecurityHelper.getCurrentUserId();
 
-        LocalDateTime start = LocalDate.of(year, 1, 1).atStartOfDay();
-        LocalDateTime end = LocalDate.of(year, 12, 31).atTime(LocalTime.MAX);
+        int targetYear = DateRangeHelper.resolveYearOrCurrent(year);
 
-        List<MonthlyTrendProjection> rows =
-                transactionRepository.monthlyTrend(userId, accountId, start, end);
+        LocalDateTime startDateTime = LocalDate.of(targetYear, 1, 1).atStartOfDay();
+        LocalDateTime endDateTime = LocalDate.of(targetYear, 12, 31).atTime(LocalTime.MAX);
 
-        return rows.stream().map(r -> {
-            BigDecimal income = r.getIncome() != null ? r.getIncome() : BigDecimal.ZERO;
-            BigDecimal expense = r.getExpense() != null ? r.getExpense() : BigDecimal.ZERO;
+        List<MonthlyTrendProjection> rows = transactionRepository
+                .getMonthlyTrend(
+                        userId,
+                        accountId,
+                        startDateTime,
+                        endDateTime
+                );
+
+        return rows.stream().map(row -> {
+            BigDecimal income = NumberHelper.zeroIfNull(row.getIncome());
+            BigDecimal expense = NumberHelper.zeroIfNull(row.getExpense());
 
             return MonthlyTrendResponse.builder()
-                    .month(r.getMonth())
-                    .income(income)
-                    .expense(expense)
+                    .month(row.getMonth())
+                    .totalIncome(income)
+                    .totalExpense(expense)
                     .balance(income.subtract(expense))
                     .build();
         }).toList();

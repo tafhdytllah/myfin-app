@@ -24,6 +24,10 @@ public class DateRangeHelper {
         return new DateTimeRange(startDateTime, endDateTime);
     }
 
+    public static int resolveYearOrCurrent(Integer year) {
+        return (year != null) ? year : LocalDateTime.now().getYear();
+    }
+
     public record DateTimeRange(
             LocalDateTime startDateTime,
             LocalDateTime endDateTime

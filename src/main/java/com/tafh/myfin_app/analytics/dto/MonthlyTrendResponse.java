@@ -13,9 +13,9 @@ public class MonthlyTrendResponse {
 
     private String month;
 
-    private BigDecimal income;
+    private BigDecimal totalIncome;
 
-    private BigDecimal expense;
+    private BigDecimal totalExpense;
 
     private BigDecimal balance;
 
