@@ -3,7 +3,7 @@ package com.tafh.myfin_app.analytics.controller;
 import com.tafh.myfin_app.analytics.dto.BiggestTransactionResponse;
 import com.tafh.myfin_app.analytics.dto.MonthlyTrendResponse;
 import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
-import com.tafh.myfin_app.analytics.dto.SummaryResponse;
+import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
 import com.tafh.myfin_app.analytics.service.AnalyticsService;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -35,11 +36,19 @@ public class AnalyticsController {
     }
 
     // 🟢 2
-    @GetMapping("/summary")
-    public ResponseEntity<ApiResponse<SummaryResponse>> summary(
-            @RequestParam(required = false) String accountId
+    @GetMapping("/income-expense-summary")
+    public ResponseEntity<ApiResponse<IncomeExpenseSummaryResponse>> summary(
+            @RequestParam(required = false) String accountId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        return ResponseHelper.ok(analyticsService.summary(accountId));
+        return ResponseHelper.ok(
+                analyticsService.getIncomeExpenseSummary(
+                        accountId,
+                        startDate,
+                        endDate
+                )
+        );
     }
 
     // 🟢 3

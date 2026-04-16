@@ -3,12 +3,13 @@ package com.tafh.myfin_app.analytics.service;
 import com.tafh.myfin_app.analytics.dto.BiggestTransactionResponse;
 import com.tafh.myfin_app.analytics.dto.MonthlyTrendResponse;
 import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
-import com.tafh.myfin_app.analytics.dto.SummaryResponse;
+import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
 import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.util.DateRangeHelper;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
 import com.tafh.myfin_app.transaction.projection.MonthlyTrendProjection;
 import com.tafh.myfin_app.transaction.projection.SpendingByCategoryProjection;
-import com.tafh.myfin_app.transaction.projection.SummaryProjection;
+import com.tafh.myfin_app.transaction.projection.IncomeExpenseSummaryProjection;
 import com.tafh.myfin_app.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -59,18 +60,29 @@ public class AnalyticsService {
     }
 
     @Transactional(readOnly = true)
-    public SummaryResponse summary(String accountId) {
+    public IncomeExpenseSummaryResponse getIncomeExpenseSummary(
+            String accountId,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
 
         String userId = SecurityHelper.getCurrentUserId();
 
-        SummaryProjection row = transactionRepository.summary(userId, accountId);
+        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
-        BigDecimal income = row.getIncome() != null ? row.getIncome() : BigDecimal.ZERO;
-        BigDecimal expense = row.getExpense() != null ? row.getExpense() : BigDecimal.ZERO;
+        IncomeExpenseSummaryProjection summary = transactionRepository.getIncomeExpenseSummary(
+                userId,
+                accountId,
+                rangeDateTime.startDateTime(),
+                rangeDateTime.endDateTime()
+        );
 
-        return SummaryResponse.builder()
-                .income(income)
-                .expense(expense)
+        BigDecimal income = summary.getIncome() != null ? summary.getIncome() : BigDecimal.ZERO;
+        BigDecimal expense = summary.getExpense() != null ? summary.getExpense() : BigDecimal.ZERO;
+
+        return IncomeExpenseSummaryResponse.builder()
+                .totalIncome(income)
+                .totalExpense(expense)
                 .balance(income.subtract(expense))
                 .build();
     }

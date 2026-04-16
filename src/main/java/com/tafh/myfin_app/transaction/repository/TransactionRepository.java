@@ -2,10 +2,10 @@ package com.tafh.myfin_app.transaction.repository;
 
 import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
+import com.tafh.myfin_app.transaction.projection.IncomeExpenseSummaryProjection;
 import com.tafh.myfin_app.transaction.projection.MonthlySummaryProjection;
 import com.tafh.myfin_app.transaction.projection.MonthlyTrendProjection;
 import com.tafh.myfin_app.transaction.projection.SpendingByCategoryProjection;
-import com.tafh.myfin_app.transaction.projection.SummaryProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -131,19 +131,19 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
 
     @Query("""
                 SELECT
-                  SUM(CASE
-                    WHEN t.category.type = com.tafh.myfin_app.category.model.CategoryType.INCOME
-                    THEN t.amount ELSE 0 END) as income,
-                  SUM(CASE
-                    WHEN t.category.type = com.tafh.myfin_app.category.model.CategoryType.EXPENSE
-                    THEN t.amount ELSE 0 END) as expense
+                    COALESCE(SUM(CASE WHEN t.category.type = 'INCOME' THEN t.amount ELSE 0 END), 0) as income,
+                    COALESCE(SUM(CASE WHEN t.category.type = 'EXPENSE' THEN t.amount ELSE 0 END), 0) as expense
                 FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
                   AND (:accountId IS NULL OR t.account.id = :accountId)
+                  AND t.createdAt >= :startDateTime
+                  AND t.createdAt <= :endDateTime
             """)
-    SummaryProjection summary(
+    IncomeExpenseSummaryProjection getIncomeExpenseSummary(
             @Param("userId") String userId,
-            @Param("accountId") String accountId
+            @Param("accountId") String accountId,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
     );
 
     @Query("""

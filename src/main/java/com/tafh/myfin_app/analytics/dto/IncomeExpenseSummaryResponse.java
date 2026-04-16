@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SummaryResponse {
+public class IncomeExpenseSummaryResponse {
 
-    private BigDecimal income;
+    private BigDecimal totalIncome;
 
-    private BigDecimal expense;
+    private BigDecimal totalExpense;
 
     private BigDecimal balance;
 
