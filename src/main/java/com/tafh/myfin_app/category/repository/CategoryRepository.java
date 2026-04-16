@@ -5,16 +5,29 @@ import com.tafh.myfin_app.category.model.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, String> {
 
     Optional<CategoryEntity> findByIdAndUserId(String id, String userId);
 
-    Page<CategoryEntity> findByUserId(String userId, Pageable pageable);
-
-    Page<CategoryEntity> findByUserIdAndType(String userId, CategoryType type, Pageable pageable);
+    @Query("""
+                SELECT c FROM CategoryEntity c
+                WHERE c.user.id = :userId
+                  AND (:type IS NULL OR c.type = :type)
+                  AND (
+                        :searchTerm IS NULL
+                        OR LOWER(c.name) LIKE :searchTerm ESCAPE '\\'
+                      )
+            """)
+    Page<CategoryEntity> findAllWithFilter(
+            @Param("userId") String userId,
+            @Param("type") CategoryType type,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
 }

@@ -32,9 +32,10 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll(
             @RequestParam(required = false) CategoryType type,
+            @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        Page<CategoryResponse> page = categoryService.getAll(type, pageable);
+        Page<CategoryResponse> page = categoryService.getAll(type, keyword, pageable);
         MetaResponse meta = metaMapper.buildMetaResponse(page);
 
         return ResponseHelper.ok(page.getContent(), meta);

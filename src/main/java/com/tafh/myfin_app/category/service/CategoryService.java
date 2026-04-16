@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.category.service;
 
+import com.tafh.myfin_app.account.model.AccountEntity;
 import com.tafh.myfin_app.category.dto.CategoryRequest;
 import com.tafh.myfin_app.category.dto.CategoryResponse;
 import com.tafh.myfin_app.category.mapper.CategoryMapper;
@@ -9,6 +10,7 @@ import com.tafh.myfin_app.category.repository.CategoryRepository;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
 import com.tafh.myfin_app.common.exception.UnauthorizedException;
 import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.util.LikeQueryHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +44,21 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryResponse> getAll(CategoryType type, Pageable pageable) {
+    public Page<CategoryResponse> getAll(
+            CategoryType type,
+            String keyword,
+            Pageable pageable
+    ) {
         String userId = SecurityHelper.getCurrentUserId();
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
 
-        Page<CategoryEntity> page = (type == null)
-                ? categoryRepository.findByUserId(userId, pageable)
-                : categoryRepository.findByUserIdAndType(userId, type, pageable);
+        String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
+
+        Page<CategoryEntity> page = categoryRepository.findAllWithFilter(
+                userId,
+                type,
+                searchTerm,
+                pageable
+        );
 
         return page.map(categoryMapper::toCategoryResponse);
     }
