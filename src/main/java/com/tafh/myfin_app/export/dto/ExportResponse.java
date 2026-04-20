@@ -12,13 +12,8 @@ import java.time.LocalDateTime;
 public class ExportResponse {
 
     private String id;
-
     private String status;
-
     private String fileName;
-
     private String downloadUrl;
-
     private LocalDateTime createdAt;
-
 }

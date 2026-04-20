@@ -16,5 +16,4 @@ public class TransactionSummaryResponse {
     private BigDecimal totalExpense;
 
     private BigDecimal balance;
-
 }

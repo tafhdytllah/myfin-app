@@ -12,9 +12,6 @@ import java.math.BigDecimal;
 public class AccountResponse {
 
     private String id;
-
     private String name;
-
     private BigDecimal balance;
-
 }

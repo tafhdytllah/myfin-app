@@ -1,10 +1,9 @@
 package com.tafh.myfin_app.report.service;
 
 import com.tafh.myfin_app.category.model.CategoryType;
-import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.report.dto.MonthlyReportResponse;
 import com.tafh.myfin_app.report.dto.ReportResponse;
-import com.tafh.myfin_app.report.mapper.ReportMapper;
 import com.tafh.myfin_app.transaction.projection.MonthlySummaryProjection;
 import com.tafh.myfin_app.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +19,11 @@ import java.util.List;
 public class ReportService {
 
     private final TransactionRepository transactionRepository;
-
-    private BigDecimal safe(BigDecimal value) {
-        return value != null ? value : BigDecimal.ZERO;
-    }
+    private final CurrentUser currentUser;
 
     @Transactional(readOnly = true)
     public ReportResponse getDaily(String accountId, LocalDate date) {
-
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         if (date == null) {
             date = LocalDate.now();
@@ -37,29 +32,36 @@ public class ReportService {
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(LocalTime.MAX);
 
-        BigDecimal totalIncome = safe(
-                transactionRepository.sumByTypeAndDateRange(
-                        userId, accountId, CategoryType.INCOME, start, end)
-        );
+        BigDecimal totalIncome = transactionRepository
+                .sumByTypeAndDateRange(
+                        userId,
+                        accountId,
+                        CategoryType.INCOME,
+                        start,
+                        end
+                );
 
-        BigDecimal totalExpense = safe(
-                transactionRepository.sumByTypeAndDateRange(
-                        userId, accountId, CategoryType.EXPENSE, start, end)
-        );
+        BigDecimal totalExpense = transactionRepository
+                .sumByTypeAndDateRange(
+                        userId,
+                        accountId,
+                        CategoryType.EXPENSE,
+                        start, end
+                );
 
-        return ReportMapper.toReportResponse(
-                date.toString(),
-                totalIncome,
-                totalExpense,
-                totalIncome.subtract(totalExpense)
-        );
+        BigDecimal balance = totalIncome.subtract(totalExpense);
 
+        return ReportResponse.builder()
+                .period(date.toString())
+                .totalIncome(totalIncome)
+                .totalExpense(totalExpense)
+                .balance(balance)
+                .build();
     }
 
     @Transactional(readOnly = true)
     public ReportResponse getWeekly(String accountId, LocalDate date) {
-
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         if (date == null) {
             date = LocalDate.now();
@@ -71,27 +73,38 @@ public class ReportService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        BigDecimal totalIncome = safe(
-                transactionRepository.sumByTypeAndDateRange(
-                        userId, accountId, CategoryType.INCOME, start, end)
-        );
+        BigDecimal totalIncome = transactionRepository
+                .sumByTypeAndDateRange(
+                        userId,
+                        accountId,
+                        CategoryType.INCOME,
+                        start,
+                        end
+                );
 
-        BigDecimal totalExpense = safe(
-                transactionRepository.sumByTypeAndDateRange(
-                        userId, accountId, CategoryType.EXPENSE, start, end)
-        );
+        BigDecimal totalExpense = transactionRepository
+                .sumByTypeAndDateRange(
+                        userId,
+                        accountId,
+                        CategoryType.EXPENSE,
+                        start,
+                        end
+                );
 
-        return ReportMapper.toReportResponse(
-                String.format("%s to %s", startDate, endDate),
-                totalIncome,
-                totalExpense,
-                totalIncome.subtract(totalExpense)
-        );
+        String period = String.format("%s to %s", startDate, endDate);
+        BigDecimal balance = totalIncome.subtract(totalExpense);
+
+        return ReportResponse.builder()
+                .period(period)
+                .totalIncome(totalIncome)
+                .totalExpense(totalExpense)
+                .balance(balance)
+                .build();
     }
 
     @Transactional(readOnly = true)
     public List<MonthlyReportResponse> getMonthly(String accountId, Integer year) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         if (year == null) {
             year = Year.now().getValue();
@@ -103,9 +116,15 @@ public class ReportService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<MonthlySummaryProjection> result = transactionRepository.monthlySummary(userId, accountId, start, end);
+        List<MonthlySummaryProjection> results = transactionRepository
+                .monthlySummary(
+                        userId,
+                        accountId,
+                        start,
+                        end
+                );
 
-        return result.stream().map(r -> {
+        return results.stream().map(r -> {
             BigDecimal totalIncome = r.getTotalIncome() != null
                     ? r.getTotalIncome()
                     : BigDecimal.ZERO;
@@ -116,13 +135,12 @@ public class ReportService {
 
             BigDecimal balance = totalIncome.subtract(totalExpense);
 
-            return ReportMapper.toMonthlyResponse(
-                    r.getMonth(),
-                    totalIncome,
-                    totalExpense,
-                    balance
-            );
+            return MonthlyReportResponse.builder()
+                    .month(r.getMonth())
+                    .totalIncome(totalIncome)
+                    .totalExpense(totalExpense)
+                    .balance(balance)
+                    .build();
         }).toList();
     }
-
 }

@@ -1,6 +1,6 @@
 package com.tafh.myfin_app.user.model;
 
-public enum Role {
+public enum RoleEnum {
     USER,
     ADMIN,
 }

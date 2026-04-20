@@ -45,7 +45,7 @@ spring:
         format_sql: true
         dialect:
           default_param_cast: true
-    show-sql: true
+    show-sql: false
 
   jackson:
     serialization:

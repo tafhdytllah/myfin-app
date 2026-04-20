@@ -16,12 +16,12 @@ public class DashboardSummaryController {
     private final DashboardSummaryService dashboardSummaryService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getGlobalDashboard() {
-        return ResponseHelper.ok(dashboardSummaryService.getGlobalDashboard());
+    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getGlobalSummary() {
+        return ResponseHelper.ok(dashboardSummaryService.getGlobalSummary());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getDashboard(@PathVariable String id) {
-        return ResponseHelper.ok(dashboardSummaryService.getDashboard(id));
+    @GetMapping("/{accountId}")
+    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getSummary(@PathVariable String accountId) {
+        return ResponseHelper.ok(dashboardSummaryService.getSummary(accountId));
     }
 }

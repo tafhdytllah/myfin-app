@@ -5,12 +5,11 @@ import com.tafh.myfin_app.account.repository.AccountRepository;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
-import com.tafh.myfin_app.common.exception.BadRequestException;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
-import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.model.DateTimeRange;
+import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.DateRangeHelper;
 import com.tafh.myfin_app.common.util.LikeQueryHelper;
-import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
 import com.tafh.myfin_app.transaction.dto.TransactionSummaryResponse;
@@ -25,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,36 +34,44 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionMapper transactionMapper;
     private final CategoryRepository categoryRepository;
+    private final CurrentUser currentUser;
 
     @Transactional
     public TransactionResponse create(TransactionRequest request) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        AccountEntity account = accountRepository.findByIdAndUserId(request.getAccountId(), userId)
+        String description = Optional.ofNullable(request.getDescription()).map(String::trim).orElse(null);
+        BigDecimal amount = request.getAmount();
+
+        AccountEntity account = accountRepository
+                .findByIdAndUser_Id(request.getAccountId(), userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
 
-        CategoryEntity category = categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
+        CategoryEntity category = categoryRepository
+                .findByIdAndUser_Id(request.getCategoryId(), userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
-        if (request.getAmount().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BadRequestException("amount", "Amount must be greather than zero");
+        if (request.getType() == CategoryType.INCOME) {
+            account.increaseBalance(amount);
+        } else {
+            account.decreaseBalance(amount);
         }
 
-        TransactionEntity trx = TransactionEntity.create(
+        TransactionEntity transaction = TransactionEntity.create(
                 account,
                 category,
                 request.getAmount(),
                 request.getType(),
-                request.getDescription()
+                description
         );
 
-        trx = transactionRepository.save(trx);
+        transactionRepository.save(transaction);
 
-        return transactionMapper.toTransactionResponse(trx);
+        return transactionMapper.toTransactionResponse(transaction);
     }
 
     @Transactional(readOnly = true)
-    public Page<TransactionResponse> getAll(
+    public Page<TransactionResponse> getTransactions(
             String accountId,
             CategoryType type,
             String categoryId,
@@ -74,10 +80,9 @@ public class TransactionService {
             String keyword,
             Pageable pageable
     ) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
-
+        DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
         String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
 
         Page<TransactionEntity> page = transactionRepository
@@ -86,8 +91,8 @@ public class TransactionService {
                         accountId,
                         type,
                         categoryId,
-                        rangeDateTime.startDateTime(),
-                        rangeDateTime.endDateTime(),
+                        rangeDateTime.getStartDateTime(),
+                        rangeDateTime.getEndDateTime(),
                         searchTerm,
                         pageable
                 );
@@ -96,33 +101,19 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public TransactionResponse getById(String id) {
-        String userId = SecurityHelper.getCurrentUserId();
+    public TransactionResponse getTransaction(String id) {
+        String userId = currentUser.getId();
 
-        TransactionEntity trx = transactionRepository.findByIdAndAccountUserId(id, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        TransactionEntity transaction = transactionRepository
+                .findByIdAndAccount_User_Id(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
 
-        return transactionMapper.toTransactionResponse(trx);
-    }
-
-    @Transactional
-    public void delete(String id) {
-        String userId = SecurityHelper.getCurrentUserId();
-
-        TransactionEntity trx = transactionRepository.findByIdAndAccountUserId(id, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-
-        if (trx.getType() == CategoryType.INCOME) {
-            trx.getAccount().decreaseBalance(trx.getAmount());
-        } else {
-            trx.getAccount().increaseBalance(trx.getAmount());
-        }
-        transactionRepository.delete(trx);
+        return transactionMapper.toTransactionResponse(transaction);
     }
 
     @Transactional(readOnly = true)
     public TransactionSummaryResponse getSummary(String accountId) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         BigDecimal totalIncome = transactionRepository.sumByAccountAndUserAndType(accountId, userId, CategoryType.INCOME);
         BigDecimal totalExpense = transactionRepository.sumByAccountAndUserAndType(accountId, userId, CategoryType.EXPENSE);
@@ -133,4 +124,22 @@ public class TransactionService {
                 .balance(totalIncome.subtract(totalExpense))
                 .build();
     }
+
+    @Transactional
+    public void delete(String id) {
+        String userId = currentUser.getId();
+
+        TransactionEntity transaction = transactionRepository
+                .findByIdAndAccount_User_Id(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
+
+        if (transaction.getType() == CategoryType.INCOME) {
+            transaction.getAccount().decreaseBalance(transaction.getAmount());
+        } else {
+            transaction.getAccount().increaseBalance(transaction.getAmount());
+        }
+
+        transactionRepository.delete(transaction);
+    }
+
 }

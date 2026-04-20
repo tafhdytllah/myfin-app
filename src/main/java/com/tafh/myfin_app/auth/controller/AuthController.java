@@ -7,7 +7,6 @@ import com.tafh.myfin_app.auth.dto.request.RegisterRequest;
 import com.tafh.myfin_app.auth.dto.response.LoginResponse;
 import com.tafh.myfin_app.auth.service.AuthService;
 import com.tafh.myfin_app.common.cookie.CookieUtil;
-import com.tafh.myfin_app.config.properties.CookieProperties;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final CookieProperties cookieProperties;
     private final CookieUtil cookieUtil;
 
     @PostMapping("/register")
@@ -38,9 +36,12 @@ public class AuthController {
     ) {
         LoginResult result = authService.login(request);
 
-        cookieUtil.addRefreshTokenCookie(response, result.getRefreshToken());
+        LoginResponse responseBody = result.getResponse();
+        String refreshToken = result.getRefreshToken();
 
-        return ResponseHelper.ok(result.getResponse());
+        cookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        return ResponseHelper.ok(responseBody);
     }
 
     @PostMapping("/refresh")
@@ -51,13 +52,16 @@ public class AuthController {
 
         RefreshResult result = authService.refreshAccessToken(refreshToken);
 
-        cookieUtil.addRefreshTokenCookie(response, result.getRefreshToken());
+        String newRefreshToken = result.getRefreshToken();
+        LoginResponse responseBody = result.getResponse();
 
-        return ResponseHelper.ok(result.getResponse());
+        cookieUtil.addRefreshTokenCookie(response, newRefreshToken);
+
+        return ResponseHelper.ok(responseBody);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Object>> logout(
+    public ResponseEntity<ApiResponse<Void>> logout(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
     ) {

@@ -1,10 +1,13 @@
 package com.tafh.myfin_app.user.model;
 
+import com.tafh.myfin_app.common.exception.DomainException;
 import com.tafh.myfin_app.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "users")
@@ -24,21 +27,49 @@ public class UserEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private Role role;
+    private RoleEnum role;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private boolean active;
 
-    public UserEntity(String username, String email, String passwordHash, Role role) {
-        this.username = username;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.role = role;
-        this.isActive = true;
+    public static UserEntity create(
+            String username,
+            String email,
+            String passwordHash,
+            RoleEnum role
+    ) {
+        if (username == null || username.isBlank()) {
+            throw new DomainException("Username is required");
+        }
+
+        if (email == null || email.isBlank()) {
+            throw new DomainException("Email is required");
+        }
+
+        if (passwordHash == null || passwordHash.isBlank()) {
+            throw new DomainException("Password is required");
+        }
+
+        if (role == null) {
+            throw new DomainException("Role is required");
+        }
+
+        UserEntity user = new UserEntity();
+        user.username = username;
+        user.email = email;
+        user.passwordHash = passwordHash;
+        user.role = role;
+        user.active = true;
+
+        return user;
+    }
+
+    public void enable() {
+        this.active = true;
     }
 
     public void disable() {
-        this.isActive = false;
+        this.active = false;
     }
 
 }

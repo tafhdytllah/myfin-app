@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionMapper {
 
-    public TransactionResponse toTransactionResponse(TransactionEntity trx) {
+    public TransactionResponse toTransactionResponse(TransactionEntity transaction) {
         return TransactionResponse.builder()
-                .id(trx.getId())
-                .accountId(trx.getAccount().getId())
-                .categoryId(trx.getCategory().getId())
-                .amount(trx.getAmount())
-                .type(trx.getType())
-                .description(trx.getDescription())
-                .createdAt(trx.getCreatedAt())
+                .id(transaction.getId())
+                .accountId(transaction.getAccount().getId())
+                .categoryId(transaction.getCategory().getId())
+                .amount(transaction.getAmount())
+                .type(transaction.getType())
+                .description(transaction.getDescription())
+                .createdAt(transaction.getCreatedAt())
                 .build();
     }
 

@@ -5,7 +5,8 @@ import com.tafh.myfin_app.analytics.dto.MonthlyTrendResponse;
 import com.tafh.myfin_app.analytics.dto.SpendingByCategoryResponse;
 import com.tafh.myfin_app.analytics.dto.IncomeExpenseSummaryResponse;
 import com.tafh.myfin_app.analytics.mapper.BiggestTransactionMapper;
-import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.model.DateTimeRange;
+import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.DateRangeHelper;
 import com.tafh.myfin_app.common.util.NumberHelper;
 import com.tafh.myfin_app.transaction.model.TransactionEntity;
@@ -32,6 +33,7 @@ public class AnalyticsService {
 
     private final TransactionRepository transactionRepository;
     private final BiggestTransactionMapper biggestTransactionMapper;
+    private final CurrentUser currentUser;
 
     @Transactional(readOnly = true)
     public List<SpendingByCategoryResponse> getSpendingByCategory(
@@ -39,17 +41,16 @@ public class AnalyticsService {
             LocalDate startDate,
             LocalDate endDate
     ) {
+        String userId = currentUser.getId();
 
-        String userId = SecurityHelper.getCurrentUserId();
-
-        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
+        DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
         List<SpendingByCategoryProjection> rows = transactionRepository
                 .getSpendingByCategory(
                         userId,
                         accountId,
-                        rangeDateTime.startDateTime(),
-                        rangeDateTime.endDateTime()
+                        rangeDateTime.getStartDateTime(),
+                        rangeDateTime.getEndDateTime()
                 );
 
         return rows.stream()
@@ -69,17 +70,16 @@ public class AnalyticsService {
             LocalDate startDate,
             LocalDate endDate
     ) {
+        String userId = currentUser.getId();
 
-        String userId = SecurityHelper.getCurrentUserId();
-
-        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
+        DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
         IncomeExpenseSummaryProjection summary = transactionRepository
                 .getIncomeExpenseSummary(
                         userId,
                         accountId,
-                        rangeDateTime.startDateTime(),
-                        rangeDateTime.endDateTime()
+                        rangeDateTime.getStartDateTime(),
+                        rangeDateTime.getEndDateTime()
                 );
 
         BigDecimal income = NumberHelper.zeroIfNull(summary.getIncome());
@@ -97,8 +97,7 @@ public class AnalyticsService {
             String accountId,
             Integer year
     ) {
-
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         int targetYear = DateRangeHelper.resolveYearOrCurrent(year);
 
@@ -133,10 +132,9 @@ public class AnalyticsService {
             LocalDate endDate,
             int limit
     ) {
+        String userId = currentUser.getId();
 
-        String userId = SecurityHelper.getCurrentUserId();
-
-        DateRangeHelper.DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
+        DateTimeRange rangeDateTime = DateRangeHelper.toDateTimeRange(startDate, endDate);
 
         Pageable pageable = PageRequest.of(0, limit);
 
@@ -144,8 +142,8 @@ public class AnalyticsService {
                 .findBiggestTransaction(
                         userId,
                         accountId,
-                        rangeDateTime.startDateTime(),
-                        rangeDateTime.endDateTime(),
+                        rangeDateTime.getStartDateTime(),
+                        rangeDateTime.getEndDateTime(),
                         pageable
                 );
 

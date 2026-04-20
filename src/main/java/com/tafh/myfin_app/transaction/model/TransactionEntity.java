@@ -3,6 +3,7 @@ package com.tafh.myfin_app.transaction.model;
 import com.tafh.myfin_app.account.model.AccountEntity;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
+import com.tafh.myfin_app.common.exception.DomainException;
 import com.tafh.myfin_app.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,25 +34,28 @@ public class TransactionEntity extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
-    public static TransactionEntity create(AccountEntity account, CategoryEntity category,BigDecimal amount, CategoryType type, String description) {
-        if (category.getType() != type) {
-            throw new RuntimeException("Category type mismatch");
-        }
+    public static TransactionEntity create(
+            AccountEntity account,
+            CategoryEntity category,
+            BigDecimal amount,
+            CategoryType type,
+            String description
+    ) {
+        if (account == null) throw new DomainException("Account is required");
+        if (category == null) throw new DomainException("Category is required");
+        if (amount == null) throw new DomainException("Amount is required");
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) throw new DomainException("Amount must be greater than zero");
+        if (type == null) throw new DomainException("Transaction type is required");
+        if (category.getType() != type) throw new DomainException("Category type mismatch");
 
-        TransactionEntity trx = new TransactionEntity();
-        trx.account = account;
-        trx.category = category;
-        trx.amount = amount;
-        trx.type = type;
-        trx.description = description;
+        TransactionEntity transaction = new TransactionEntity();
+        transaction.account = account;
+        transaction.category = category;
+        transaction.amount = amount;
+        transaction.type = type;
+        transaction.description = description;
 
-        if (type == CategoryType.INCOME) {
-            account.increaseBalance(amount);
-        } else {
-            account.decreaseBalance(amount);
-        }
-
-        return trx;
+        return transaction;
     }
 
 }

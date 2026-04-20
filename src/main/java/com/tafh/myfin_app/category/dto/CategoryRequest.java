@@ -2,6 +2,7 @@ package com.tafh.myfin_app.category.dto;
 
 import com.tafh.myfin_app.category.model.CategoryType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -14,6 +15,6 @@ public class CategoryRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "Type is required")
+    @NotNull(message = "Type is required")
     private CategoryType type;
 }

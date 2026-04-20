@@ -12,11 +12,7 @@ import java.math.BigDecimal;
 public class MonthlyTrendResponse {
 
     private String month;
-
     private BigDecimal totalIncome;
-
     private BigDecimal totalExpense;
-
     private BigDecimal balance;
-
 }

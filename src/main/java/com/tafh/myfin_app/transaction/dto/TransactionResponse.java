@@ -15,17 +15,10 @@ import java.time.LocalDateTime;
 public class TransactionResponse {
 
     private String id;
-
     private String accountId;
-
     private String categoryId;
-
     private BigDecimal amount;
-
     private CategoryType type;
-
     private String description;
-
     private LocalDateTime createdAt;
-
 }

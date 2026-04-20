@@ -9,6 +9,7 @@ import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
 import com.tafh.myfin_app.transaction.dto.TransactionSummaryResponse;
 import com.tafh.myfin_app.transaction.service.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +29,12 @@ public class TransactionController {
     private final MetaMapper metaMapper;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TransactionResponse>> create(@RequestBody TransactionRequest request) {
+    public ResponseEntity<ApiResponse<TransactionResponse>> create(@Valid @RequestBody TransactionRequest request) {
         return ResponseHelper.created(transactionService.create(request));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getAll(
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getTransactions(
             @RequestParam(required = false) String accountId,
             @RequestParam(required = false) CategoryType type,
             @RequestParam(required = false) String categoryId,
@@ -42,7 +43,7 @@ public class TransactionController {
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        Page<TransactionResponse> page = transactionService.getAll(
+        Page<TransactionResponse> page = transactionService.getTransactions(
                 accountId,
                 type,
                 categoryId,
@@ -51,15 +52,20 @@ public class TransactionController {
                 keyword,
                 pageable
         );
-
         MetaResponse meta = metaMapper.buildMetaResponse(page);
+        List<TransactionResponse> transactions = page.getContent();
 
-        return ResponseHelper.ok(page.getContent(), meta);
+        return ResponseHelper.ok(transactions, meta);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TransactionResponse>> getById(@PathVariable String id) {
-        return ResponseHelper.ok(transactionService.getById(id));
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable String id) {
+        return ResponseHelper.ok(transactionService.getTransaction(id));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<TransactionSummaryResponse>> getSummary(@RequestParam String accountId) {
+        return ResponseHelper.ok(transactionService.getSummary(accountId));
     }
 
     @DeleteMapping("/{id}")
@@ -68,8 +74,4 @@ public class TransactionController {
         return ResponseHelper.ok(null, "Transaction has been deleted");
     }
 
-    @GetMapping("/summary")
-    public ResponseEntity<ApiResponse<TransactionSummaryResponse>> getSummary(@RequestParam String accountId) {
-        return ResponseHelper.ok(transactionService.getSummary(accountId));
-    }
 }

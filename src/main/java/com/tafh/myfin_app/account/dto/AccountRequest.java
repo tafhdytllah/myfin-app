@@ -1,10 +1,6 @@
 package com.tafh.myfin_app.account.dto;
 
-
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -20,10 +16,8 @@ public class AccountRequest {
     private String name;
 
     @NotNull(message = "Balance is required")
-    @Positive(message = "Balance must be greater than 0")
+    @PositiveOrZero(message = "Balance cannot be negative")
     @Digits(integer = 17, fraction = 2, message = "Invalid Balance format")
     private BigDecimal balance;
-
-
 
 }

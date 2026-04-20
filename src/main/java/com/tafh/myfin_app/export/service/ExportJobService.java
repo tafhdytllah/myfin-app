@@ -1,8 +1,7 @@
 package com.tafh.myfin_app.export.service;
 
-import com.tafh.myfin_app.common.exception.ForbiddenException;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
-import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.export.dto.CreateExportResponse;
 import com.tafh.myfin_app.export.dto.ExportRequest;
@@ -38,8 +37,10 @@ public class ExportJobService {
     private final ExcelExportService excelExportService;
     private final PdfExportService pdfExportService;
     private final ExportMapper exportMapper;
+    private final CurrentUser currentUser;
 
-    public CreateExportResponse createExport(String userId, ExportRequest request) {
+    public CreateExportResponse createExport(ExportRequest request) {
+        String userId = currentUser.getId();
 
         ExportJobEntity job = ExportJobEntity.create(userId, request.getExportType());
         exportJobRepository.save(job);
@@ -51,17 +52,17 @@ public class ExportJobService {
                 .build();
     }
 
-    public ExportResponse getStatus(String jobId) {
-        ExportJobEntity exportJob = exportJobRepository.findById(jobId).
+    public ExportResponse getStatus(String id) {
+        ExportJobEntity exportJob = exportJobRepository.findById(id).
                 orElseThrow(() -> new RuntimeException("Export not found"));
 
         return exportMapper.toExportResponse(exportJob);
     }
 
     @Async
-    public void generateFileAsync(String jobId, String userId) {
+    public void generateFileAsync(String id, String userId) {
 
-        ExportJobEntity job = exportJobRepository.findById(jobId).orElseThrow();
+        ExportJobEntity job = exportJobRepository.findById(id).orElseThrow();
 
         try {
             job.markProcessing();
@@ -95,17 +96,17 @@ public class ExportJobService {
 
         } catch (Exception e) {
             job.markFailed("Failed to generate export job");
-            LogHelper.error("Export failed for jobId= {}", jobId, e.getMessage());
+            LogHelper.error("Export failed for jobId= {}", id, e.getMessage());
         }
 
         exportJobRepository.save(job);
     }
 
-    public File getFile(String jobId) {
+    public File getFile(String id) {
 
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        ExportJobEntity job = exportJobRepository.findByIdAndUserId(jobId, userId)
+        ExportJobEntity job = exportJobRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Export not found"));
 
         if (job.getStatus() != ExportStatusEnum.DONE) {

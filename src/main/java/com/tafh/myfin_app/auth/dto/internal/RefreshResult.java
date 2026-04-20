@@ -11,7 +11,5 @@ import lombok.Getter;
 public class RefreshResult {
 
     private LoginResponse response;
-
     private String refreshToken;
-
 }

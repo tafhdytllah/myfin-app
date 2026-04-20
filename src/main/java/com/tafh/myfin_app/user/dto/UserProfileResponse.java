@@ -1,7 +1,7 @@
 package com.tafh.myfin_app.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tafh.myfin_app.user.model.Role;
+import com.tafh.myfin_app.user.model.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +13,8 @@ import lombok.Getter;
 public class UserProfileResponse {
 
     private String id;
-
     private String username;
-
     private String email;
-
-    private Role role;
-
-    private boolean isActive;
+    private RoleEnum role;
+    private boolean active;
 }

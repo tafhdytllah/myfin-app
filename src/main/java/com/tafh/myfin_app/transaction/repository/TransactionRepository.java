@@ -19,17 +19,7 @@ import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
 
-    @Query("""
-                    SELECT t
-                    FROM TransactionEntity t
-                    JOIN FETCH t.category
-                    JOIN FETCH t.account a
-                    JOIN FETCH a.user
-                    WHERE a.user.id = :userId
-            """)
-    List<TransactionEntity> findAllByUserIdForExport(
-            @Param("userId") String userId
-    );
+    Optional<TransactionEntity> findByIdAndAccount_User_Id(String id, String userId);
 
     @Query("""
                 SELECT t FROM TransactionEntity t
@@ -56,7 +46,16 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             Pageable pageable
     );
 
-    Optional<TransactionEntity> findByIdAndAccountUserId(String id, String userId);
+    @Query("""
+            SELECT COALESCE(SUM(t.amount), 0)
+                FROM TransactionEntity t
+                    WHERE t.account.user.id = :userId
+                                AND t.type = :type
+            """)
+    BigDecimal sumByUserAndType(
+            @Param("userId") String userId,
+            @Param("type") CategoryType type
+    );
 
     @Query("""
             SELECT COALESCE(SUM(t.amount), 0)
@@ -67,18 +66,6 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             """)
     BigDecimal sumByAccountAndUserAndType(
             @Param("accountId") String accountId,
-            @Param("userId") String userId,
-            @Param("type") CategoryType type
-    );
-
-
-    @Query("""
-            SELECT COALESCE(SUM(t.amount), 0)
-                FROM TransactionEntity t
-                    WHERE t.account.user.id = :userId
-                                AND t.type = :type
-            """)
-    BigDecimal sumByUserAndType(
             @Param("userId") String userId,
             @Param("type") CategoryType type
     );
@@ -198,6 +185,18 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime,
             Pageable pageable
+    );
+
+    @Query("""
+                    SELECT t
+                    FROM TransactionEntity t
+                    JOIN FETCH t.category
+                    JOIN FETCH t.account a
+                    JOIN FETCH a.user
+                    WHERE a.user.id = :userId
+            """)
+    List<TransactionEntity> findAllByUserIdForExport(
+            @Param("userId") String userId
     );
 
 }

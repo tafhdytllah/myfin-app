@@ -14,15 +14,9 @@ import java.time.LocalDateTime;
 public class BiggestTransactionResponse {
 
     private String transactionId;
-
     private String categoryName;
-
     private CategoryType type;
-
     private BigDecimal amount;
-
     private LocalDateTime createdAt;
-
     private String description;
-
 }

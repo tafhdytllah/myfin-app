@@ -7,6 +7,7 @@ import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.dto.MetaMapper;
 import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,39 +25,38 @@ public class AccountController {
     private final MetaMapper metaMapper;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<AccountResponse>> create(@RequestBody AccountRequest request) {
+    public ResponseEntity<ApiResponse<AccountResponse>> create(@Valid @RequestBody AccountRequest request) {
         return ResponseHelper.created(accountService.create(request));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<AccountResponse>>> findAll(
+    public ResponseEntity<ApiResponse<List<AccountResponse>>> getAccounts(
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-
-        Page<AccountResponse> page = accountService.findAll(keyword, pageable);
+        Page<AccountResponse> page = accountService.getAccounts(keyword, pageable);
         MetaResponse meta = metaMapper.buildMetaResponse(page);
+        List<AccountResponse> accounts = page.getContent();
 
-        return ResponseHelper.ok(page.getContent(), meta);
+        return ResponseHelper.ok(accounts, meta);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AccountResponse>> findById(@PathVariable String id) {
-        return ResponseHelper.ok(accountService.findById(id));
+    public ResponseEntity<ApiResponse<AccountResponse>> getAccount(@PathVariable String id) {
+        return ResponseHelper.ok(accountService.getAccount(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AccountResponse>> update(
             @PathVariable String id,
-            @RequestBody AccountRequest request
+            @Valid @RequestBody AccountRequest request
     ) {
-        return ResponseHelper.created(accountService.update(id, request));
+        return ResponseHelper.ok(accountService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<AccountResponse>> delete(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String id) {
         accountService.delete(id);
-
         return ResponseHelper.ok(null, "Account has been deleted");
     }
 }

@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<AccountEntity, String> {
 
+    Optional<AccountEntity> findByIdAndUser_Id(String id, String userId);
+
     @Query("""
                 SELECT a
                 FROM AccountEntity a
                 WHERE a.user.id = :userId
                   AND (
                         :searchTerm IS NULL
+                        OR :searchTerm = ''
                         OR LOWER(a.name) LIKE :searchTerm ESCAPE '\\'
                       )
             """)
@@ -26,6 +29,5 @@ public interface AccountRepository extends JpaRepository<AccountEntity, String> 
             Pageable pageable
     );
 
-    Optional<AccountEntity> findByIdAndUserId(String id, String userId);
 
 }

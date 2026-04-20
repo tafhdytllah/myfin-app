@@ -12,7 +12,7 @@ import com.tafh.myfin_app.common.security.JwtService;
 import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.refresh_token.service.RefreshTokenService;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
-import com.tafh.myfin_app.user.model.Role;
+import com.tafh.myfin_app.user.model.RoleEnum;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import com.tafh.myfin_app.user.repository.UserRepository;
@@ -39,16 +39,15 @@ public class AuthService {
         String email = request.getEmail().trim();
         String rawPassword = request.getPassword();
 
-        if (userRepository.existsByUsername(username)) throw new BadRequestException("username", "username already exists");
-        if (userRepository.existsByEmail(email)) throw new BadRequestException("email", "email already exists");
+        validateUniqueUser(username, email);
 
         String hashedPassword = passwordEncoder.encode(rawPassword);
 
-        UserEntity user = userMapper.toUserEntity(
+        UserEntity user = UserEntity.create(
                 username,
                 email,
                 hashedPassword,
-                Role.USER
+                RoleEnum.USER
         );
 
         UserEntity savedUser = userRepository.save(user);
@@ -64,22 +63,26 @@ public class AuthService {
         String username = request.getUsername().trim();
         String rawPassword = request.getPassword();
 
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UnauthorizedException("invalid username or password"));
+        UserEntity user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UnauthorizedException("Invalid username or password"));
 
-        if (!user.getIsActive() || !passwordEncoder.matches(rawPassword, user.getPasswordHash()))
-            throw new UnauthorizedException("invalid username or password");
+        if (!user.isActive() || !passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            throw new UnauthorizedException("Invalid username or password");
+        }
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getRole().name());
         String rawRefreshToken = jwtService.generateRefreshToken(user.getId());
 
-        LoginResponse loginResponse =  LoginResponse.builder()
-                .accessToken(accessToken)
-                .build();
-
         refreshTokenService.saveRefreshToken(user, rawRefreshToken);
 
+        LoginResponse loginResponse =  LoginResponse.builder()
+                .accessToken(accessToken)
+                .expiresIn(jwtService.getAccessTokenExpiration())
+                .build();
+
         LogHelper.info("AUTH_LOGIN_SUCCESS userId={}", user.getId());
+
         return LoginResult.builder()
                 .response(loginResponse)
                 .refreshToken(rawRefreshToken)
@@ -90,20 +93,19 @@ public class AuthService {
     public RefreshResult refreshAccessToken(String rawRefreshToken) {
         LogHelper.info("AUTH_REFRESH attempt");
 
-        if (rawRefreshToken == null || rawRefreshToken.isBlank()) throw new UnauthorizedException("Refresh token is missing");
+        validateRefreshToken(rawRefreshToken);
 
         RotateTokenResult rotateTokenResult = refreshTokenService.rotateRefreshToken(rawRefreshToken);
         UserEntity user = rotateTokenResult.getUser();
 
+        validateActiveUser(user);
+
         String newAccessToken = jwtService.generateAccessToken(user.getId(), user.getRole().name());
 
-        LoginResponse response =  LoginResponse.builder()
-                .accessToken(newAccessToken)
-                .build();
-
         LogHelper.info("AUTH_REFRESH_SUCCESS userId={}", user.getId());
+
         return RefreshResult.builder()
-                .response(response)
+                .response(buildLoginResponse(newAccessToken))
                 .refreshToken(rotateTokenResult.getNewRefreshToken())
                 .build();
     }
@@ -112,10 +114,50 @@ public class AuthService {
     public void logout(String rawRefreshToken) {
         LogHelper.info("AUTH_LOGOUT attempt");
 
-        if (rawRefreshToken == null || rawRefreshToken.isBlank()) throw new UnauthorizedException("Refresh token is missing");
+        validateRefreshToken(rawRefreshToken);
 
         refreshTokenService.revokeRefreshToken(rawRefreshToken);
-        LogHelper.info("AUTH_LOGOU_SUCCESS");
+
+        LogHelper.info("AUTH_LOGOUT_SUCCESS");
+    }
+
+    private void validateUniqueUser(String username, String email) {
+        if (userRepository.existsByUsername(username)) {
+            throw new BadRequestException("username", "Username already exists");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BadRequestException("email", "Email already exists");
+        }
+    }
+
+    private void validateRefreshToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new UnauthorizedException("Refresh token is missing");
+        }
+
+        try {
+            String type = jwtService.parseClaims(token).get("type", String.class);
+
+            if (!"refresh".equals(type)) {
+                throw new UnauthorizedException("Invalid token type");
+            }
+
+        } catch (Exception e) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+    }
+
+    private void validateActiveUser(UserEntity user) {
+        if (!user.isActive()) {
+            throw new UnauthorizedException("User is inactive");
+        }
+    }
+
+    private LoginResponse buildLoginResponse(String accessToken) {
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .expiresIn(jwtService.getAccessTokenExpiration())
+                .build();
     }
 
 }

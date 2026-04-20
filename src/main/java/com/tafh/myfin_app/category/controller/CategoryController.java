@@ -8,6 +8,7 @@ import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.dto.MetaMapper;
 import com.tafh.myfin_app.common.dto.MetaResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,31 +26,32 @@ public class CategoryController {
     private final MetaMapper metaMapper;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CategoryResponse>> create(@RequestBody CategoryRequest request) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> create(@Valid @RequestBody CategoryRequest request) {
         return ResponseHelper.created(categoryService.create(request));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll(
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories(
             @RequestParam(required = false) CategoryType type,
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        Page<CategoryResponse> page = categoryService.getAll(type, keyword, pageable);
+        Page<CategoryResponse> page = categoryService.getCategories(type, keyword, pageable);
         MetaResponse meta = metaMapper.buildMetaResponse(page);
+        List<CategoryResponse> categories = page.getContent();
 
-        return ResponseHelper.ok(page.getContent(), meta);
+        return ResponseHelper.ok(categories, meta);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getById(@PathVariable String id) {
-        return ResponseHelper.ok(categoryService.getById(id));
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategory(@PathVariable String id) {
+        return ResponseHelper.ok(categoryService.getCategory(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> update(
             @PathVariable String id,
-            @RequestBody CategoryRequest request
+            @Valid @RequestBody CategoryRequest request
     ) {
         return ResponseHelper.ok(categoryService.update(id, request));
     }

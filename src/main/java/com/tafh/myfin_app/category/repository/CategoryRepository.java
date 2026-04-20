@@ -12,14 +12,18 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, String> {
 
-    Optional<CategoryEntity> findByIdAndUserId(String id, String userId);
+    Optional<CategoryEntity> findByIdAndUser_Id(String id, String userId);
 
     @Query("""
-                SELECT c FROM CategoryEntity c
+                SELECT c
+                FROM CategoryEntity c
                 WHERE c.user.id = :userId
-                  AND (:type IS NULL OR c.type = :type)
+                  AND (
+                        :type IS NULL OR c.type = :type
+                      )
                   AND (
                         :searchTerm IS NULL
+                        OR :searchTerm = ''
                         OR LOWER(c.name) LIKE :searchTerm ESCAPE '\\'
                       )
             """)

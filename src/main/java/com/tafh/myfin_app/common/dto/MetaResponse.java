@@ -12,14 +12,9 @@ import lombok.NoArgsConstructor;
 public class MetaResponse {
 
     private int page;
-
     private int size;
-
     private int totalPages;
-
     private long totalElements;
-
     private boolean hasNext;
-
     private boolean hasPrevious;
 }

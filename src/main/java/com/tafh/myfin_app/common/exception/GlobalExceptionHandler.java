@@ -75,6 +75,18 @@ public class GlobalExceptionHandler {
         return ResponseHelper.error(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDomain(
+            DomainException ex
+    ) {
+        LogHelper.warn("DOMAIN_ERROR : {}", ex.getMessage());
+        return ResponseHelper.error(
+                HttpStatus.BAD_REQUEST,
+                ErrorCode.VALIDATION_ERROR,
+                ex.getMessage()
+        );
+    }
+
     /* =======================
        FALLBACK
        ======================= */
@@ -82,7 +94,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleGeneric(
             Exception ex
     ) {
-        LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex.getMessage());
+        LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex);
         return ResponseHelper.error(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 

@@ -24,6 +24,10 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
+    public long getAccessTokenExpiration() {
+        return jwtProperties.getExpiration();
+    }
+
     /**
      * Generate ACESS TOKEN & REFRESH TOKEN
      */

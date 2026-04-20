@@ -1,6 +1,7 @@
 package com.tafh.myfin_app.user.controller;
 
 import com.tafh.myfin_app.common.dto.ApiResponse;
+import com.tafh.myfin_app.common.util.ResponseHelper;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> getCurrentUser() {
-        UserProfileResponse user = userService.getCurrentUser();
-
-        return ResponseEntity.ok(ApiResponse.success(user));
+        return ResponseHelper.ok(userService.getCurrentUser());
     }
+
 }

@@ -5,11 +5,12 @@ import com.tafh.myfin_app.account.dto.AccountResponse;
 import com.tafh.myfin_app.account.mapper.AccountMapper;
 import com.tafh.myfin_app.account.model.AccountEntity;
 import com.tafh.myfin_app.account.repository.AccountRepository;
-import com.tafh.myfin_app.common.exception.UnauthorizedException;
-import com.tafh.myfin_app.common.security.SecurityHelper;
+import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
+import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.LikeQueryHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
-import com.tafh.myfin_app.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,19 +22,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
     private final AccountMapper accountMapper;
+    private final CurrentUser currentUser;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Transactional
     public AccountResponse create(AccountRequest request) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        String name = request.getName().trim();
+
+        UserEntity user = entityManager.getReference(UserEntity.class, userId);
 
         AccountEntity account = AccountEntity.create(
                 user,
-                request.getName(),
+                name,
                 request.getBalance()
         );
 
@@ -43,93 +48,58 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AccountResponse> findAll(
+    public Page<AccountResponse> getAccounts(
             String keyword,
             Pageable pageable
     ) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
         String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
 
-        Page<AccountEntity> page = accountRepository.findAllWithFilter(
-                userId,
-                searchTerm,
-                pageable
-        );
+        Page<AccountEntity> accounts = accountRepository
+                .findAllWithFilter(
+                        userId,
+                        searchTerm,
+                        pageable
+                );
 
-        return page.map(accountMapper::toAccountResponse);
+        return accounts.map(accountMapper::toAccountResponse);
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse findById(String id) {
-        String userId = SecurityHelper.getCurrentUserId();
+    public AccountResponse getAccount(String id) {
+        String userId = currentUser.getId();
 
-        AccountEntity account = accountRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new UnauthorizedException("Account not found"));
+        AccountEntity account = accountRepository
+                .findByIdAndUser_Id(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
 
         return accountMapper.toAccountResponse(account);
     }
 
     @Transactional
     public AccountResponse update(String id, AccountRequest request) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        AccountEntity account = accountRepository.findById(id)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        String name = request.getName().trim();
 
-        if (!account.getUser().getId().equals(userId)) {
-            throw new UnauthorizedException("User not authorized");
-        }
+        AccountEntity account = accountRepository
+                .findByIdAndUser_Id(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
 
-        account.updateName(request.getName());
-
-        accountRepository.save(account);
+        account.update(name);
 
         return accountMapper.toAccountResponse(account);
     }
 
     @Transactional
     public void delete(String id) {
-        String userId = SecurityHelper.getCurrentUserId();
+        String userId = currentUser.getId();
 
-        AccountEntity account = accountRepository.findById(id)
-                .orElseThrow(() -> new UnauthorizedException("Account not found"));
-
-        if (!account.getUser().getId().equals(userId)) {
-            throw new UnauthorizedException("User not authorized");
-        }
+        AccountEntity account = accountRepository
+                .findByIdAndUser_Id(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
 
         accountRepository.delete(account);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

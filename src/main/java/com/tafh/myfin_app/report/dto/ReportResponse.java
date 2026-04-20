@@ -12,11 +12,7 @@ import java.math.BigDecimal;
 public class ReportResponse {
 
     private String period;
-
     private BigDecimal totalIncome;
-
     private BigDecimal totalExpense;
-
     private BigDecimal balance;
-
 }

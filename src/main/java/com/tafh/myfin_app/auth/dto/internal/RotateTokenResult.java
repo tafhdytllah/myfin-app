@@ -11,7 +11,5 @@ import lombok.Getter;
 public class RotateTokenResult {
 
     private UserEntity user;
-
     private String newRefreshToken;
-
 }

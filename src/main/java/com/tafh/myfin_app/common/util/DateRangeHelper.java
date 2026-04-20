@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.common.util;
 
+import com.tafh.myfin_app.common.model.DateTimeRange;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -21,16 +22,14 @@ public class DateRangeHelper {
                 ? endDate.atTime(LocalTime.MAX)
                 : LocalDateTime.now();
 
-        return new DateTimeRange(startDateTime, endDateTime);
+        return DateTimeRange.builder()
+                .startDateTime(startDateTime)
+                .endDateTime(endDateTime)
+                .build();
     }
 
     public static int resolveYearOrCurrent(Integer year) {
         return (year != null) ? year : LocalDateTime.now().getYear();
     }
-
-    public record DateTimeRange(
-            LocalDateTime startDateTime,
-            LocalDateTime endDateTime
-    ) {}
 
 }

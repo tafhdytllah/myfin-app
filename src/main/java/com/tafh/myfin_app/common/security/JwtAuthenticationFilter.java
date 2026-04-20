@@ -50,27 +50,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UserEntity user = userRepository.findById(userId).orElse(null);
 
-        if (user == null) {
-            SecurityContextHolder.clearContext();
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (!user.getIsActive()) {
+        if (user == null || !user.isActive()) {
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            CustomUserPrincipal principal =
+                    new CustomUserPrincipal(
+                            user.getId(),
+                            user.getUsername()
+                    );
+
+
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
-                            user,
+                            principal,
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                     );
 
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

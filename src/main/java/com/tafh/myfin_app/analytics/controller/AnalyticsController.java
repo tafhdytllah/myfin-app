@@ -35,8 +35,8 @@ public class AnalyticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        return ResponseHelper.ok(
-                analyticsService.getSpendingByCategory(
+        return ResponseHelper.ok(analyticsService
+                .getSpendingByCategory(
                         accountId,
                         startDate,
                         endDate
@@ -51,8 +51,8 @@ public class AnalyticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        return ResponseHelper.ok(
-                analyticsService.getIncomeExpenseSummary(
+        return ResponseHelper.ok(analyticsService
+                .getIncomeExpenseSummary(
                         accountId,
                         startDate,
                         endDate
@@ -78,12 +78,13 @@ public class AnalyticsController {
             @RequestParam(defaultValue = "1") int limit
     ) {
 
-        Page<BiggestTransactionResponse> page = analyticsService.biggestTransaction(
-                accountId,
-                startDate,
-                endDate,
-                limit
-        );
+        Page<BiggestTransactionResponse> page = analyticsService
+                .biggestTransaction(
+                    accountId,
+                    startDate,
+                    endDate,
+                    limit
+                );
 
         return ResponseHelper.ok(page.getContent());
     }

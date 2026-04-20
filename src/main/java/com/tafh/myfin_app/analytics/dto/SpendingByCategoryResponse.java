@@ -13,11 +13,7 @@ import java.math.BigDecimal;
 public class SpendingByCategoryResponse {
 
     private String categoryId;
-
     private String categoryName;
-
     private CategoryType type;
-
     private BigDecimal total;
-
 }
