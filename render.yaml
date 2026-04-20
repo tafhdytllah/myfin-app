@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: myfin-app-api
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ISSUER
+        value: myfin-app
+      - key: JWT_EXPIRATION
+        value: 3600000
+      - key: JWT_REFRESH_EXPIRATION
+        value: 2592000000
+      - key: SECURITY_COOKIE_SECURE
+        value: true
+      - key: SECURITY_COOKIE_SAME_SITE
+        value: None
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false

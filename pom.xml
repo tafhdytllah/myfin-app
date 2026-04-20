@@ -174,9 +174,9 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.17.0</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5432/myfin_db</url>
-                    <user>postgres</user>
-                    <password>123456</password>
+                    <url>${flyway.url}</url>
+                    <user>${flyway.user}</user>
+                    <password>${flyway.password}</password>
                 </configuration>
             </plugin>
         </plugins>

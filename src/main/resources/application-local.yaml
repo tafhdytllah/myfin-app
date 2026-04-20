@@ -1,0 +1,12 @@
+logging:
+  level:
+    com.tafh.myfin_app: DEBUG
+
+security:
+  cookie:
+    secure: false
+    same-site: Strict
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000

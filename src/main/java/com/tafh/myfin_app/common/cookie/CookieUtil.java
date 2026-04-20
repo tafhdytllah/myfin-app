@@ -17,7 +17,7 @@ public class CookieUtil {
                 (cookieProperties.isSecure() ? "; Secure" : "" ) +
                 "; Path=/" +
                 "; Max-Age=" + (30 * 24 * 60 * 60) +
-                "; SameSite=Strict";
+                "; SameSite=" + cookieProperties.getSameSite();
 
         response.addHeader("Set-Cookie", cookieValue);
     }
@@ -28,7 +28,7 @@ public class CookieUtil {
                 (cookieProperties.isSecure() ? "; Secure" : "" ) +
                 "; Path=/" +
                 "; Max-Age=0" +
-                "; SameSite=Strict";
+                "; SameSite=" + cookieProperties.getSameSite();
 
         response.addHeader("Set-Cookie", cookieValue);
     }

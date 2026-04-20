@@ -1,0 +1,9 @@
+logging:
+  level:
+    root: INFO
+    com.tafh.myfin_app: INFO
+
+security:
+  cookie:
+    secure: true
+    same-site: None
