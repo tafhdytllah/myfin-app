@@ -1,5 +1,7 @@
 # Deployment Notes
 
+Back to [README](./README.md)
+
 ## Recommended stack
 
 - Source code: GitHub
@@ -12,17 +14,20 @@
 - `application.yaml`: shared defaults and env-based config
 - `application-local.yaml`: local development overrides
 - `application-prod.yaml`: production overrides
-- `.env`: local-only values, not committed
-- `.env.example`: committed template for required variables
 
-Spring Boot does not automatically read `.env` by itself. For local development, load the values through IntelliJ run configuration or your terminal session.
+For local development, the current defaults in `application.yaml` and `application-local.yaml` are enough for the standard local setup.
 
 In IntelliJ IDEA:
 
 1. Open Run/Debug Configurations.
 2. Select your Spring Boot run configuration.
 3. Set `SPRING_PROFILES_ACTIVE=local`.
-4. Add the rest of the variables from `.env` into Environment Variables.
+4. Add environment variables only if you want to override the defaults.
+
+For frontend development, the local seed creates a demo user automatically:
+
+- username: `demo`
+- password: `Demo123!`
 
 ## Do you need Docker?
 
@@ -44,6 +49,15 @@ Set these in Render:
 - `SECURITY_COOKIE_SECURE=true`
 - `SECURITY_COOKIE_SAME_SITE=None`
 - `APP_CORS_ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app`
+
+Minimum required values:
+
+- `SPRING_PROFILES_ACTIVE=prod`
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
+- `JWT_SECRET`
+- `APP_CORS_ALLOWED_ORIGINS`
 
 ## Supabase
 
@@ -81,3 +95,5 @@ When the frontend calls the backend:
 - keep `APP_CORS_ALLOWED_ORIGINS` in Render equal to your exact Vercel origin
 
 Without these settings, refresh-token cookies will fail across domains.
+
+For API shapes and request examples, see [FRONTEND_HANDOFF.md](./FRONTEND_HANDOFF.md).

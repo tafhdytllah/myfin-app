@@ -10,3 +10,8 @@ security:
 app:
   cors:
     allowed-origins: http://localhost:3000
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
+    demo-username: ${APP_SEED_DEMO_USERNAME:demo}
+    demo-email: ${APP_SEED_DEMO_EMAIL:demo@myfin.local}
+    demo-password: ${APP_SEED_DEMO_PASSWORD:Demo123!}
