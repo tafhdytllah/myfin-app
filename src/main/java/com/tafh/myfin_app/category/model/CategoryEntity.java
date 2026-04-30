@@ -2,7 +2,6 @@ package com.tafh.myfin_app.category.model;
 
 import com.tafh.myfin_app.common.exception.DomainException;
 import com.tafh.myfin_app.common.model.BaseEntity;
-import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,15 +20,14 @@ public class CategoryEntity extends BaseEntity {
     @Column(length = 20, nullable = false)
     private CategoryType type;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean active;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    public static CategoryEntity create(
-            UserEntity user,
-            String name,
-            CategoryType type
-    ) {
+    public static CategoryEntity create(UserEntity user, String name, CategoryType type) {
         if (user == null) {
             throw new DomainException("User is required");
         }
@@ -46,14 +44,12 @@ public class CategoryEntity extends BaseEntity {
         category.name = name;
         category.type = type;
         category.user = user;
+        category.active = true;
 
         return category;
     }
 
-    public void update(
-            String name,
-            CategoryType type
-    ) {
+    public void update(String name, CategoryType type, Boolean active) {
         if (name == null || name.isBlank()) {
             throw new DomainException("Category name is required");
         }
@@ -64,6 +60,7 @@ public class CategoryEntity extends BaseEntity {
 
         this.name = name;
         this.type = type;
+        if (active != null) this.active = active;
     }
 
 }

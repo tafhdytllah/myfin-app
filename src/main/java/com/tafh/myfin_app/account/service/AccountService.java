@@ -39,7 +39,7 @@ public class AccountService {
         AccountEntity account = AccountEntity.create(
                 user,
                 name,
-                request.getBalance()
+                request.getOpeningBalance()
         );
 
         accountRepository.save(account);

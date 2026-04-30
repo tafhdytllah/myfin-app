@@ -15,9 +15,9 @@ public class AccountRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotNull(message = "Balance is required")
-    @PositiveOrZero(message = "Balance cannot be negative")
-    @Digits(integer = 17, fraction = 2, message = "Invalid Balance format")
-    private BigDecimal balance;
+    @NotNull(message = "Opening balance is required")
+    @PositiveOrZero(message = "Opening balance cannot be negative")
+    @Digits(integer = 17, fraction = 2, message = "Invalid Opening balance format")
+    private BigDecimal openingBalance;
 
 }

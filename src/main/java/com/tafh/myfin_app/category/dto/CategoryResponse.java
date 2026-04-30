@@ -13,4 +13,6 @@ public class CategoryResponse {
     private String id;
     private String name;
     private CategoryType type;
+    private boolean active;
+    private long usageCount;
 }

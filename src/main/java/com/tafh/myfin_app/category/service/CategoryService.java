@@ -5,10 +5,12 @@ import com.tafh.myfin_app.category.dto.CategoryResponse;
 import com.tafh.myfin_app.category.mapper.CategoryMapper;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
+import com.tafh.myfin_app.category.projection.CategoryProjection;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
 import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.LikeQueryHelper;
+import com.tafh.myfin_app.transaction.repository.TransactionRepository;
 import com.tafh.myfin_app.user.model.UserEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final TransactionRepository transactionRepository;
     private final CategoryMapper categoryMapper;
     private final CurrentUser currentUser;
 
@@ -33,19 +36,17 @@ public class CategoryService {
     public CategoryResponse create(CategoryRequest request) {
         String userId = currentUser.getId();
 
-        String name = request.getName().trim();
+        UserEntity userEntity = entityManager.getReference(UserEntity.class, userId);
 
-        UserEntity user = entityManager.getReference(UserEntity.class, userId);
-
-        CategoryEntity category = CategoryEntity.create(
-                user,
-                name,
+        CategoryEntity categoryEntity = CategoryEntity.create(
+                userEntity,
+                request.getName().trim(),
                 request.getType()
         );
 
-        categoryRepository.save(category);
+        categoryRepository.save(categoryEntity);
 
-        return categoryMapper.toCategoryResponse(category);
+        return categoryMapper.toCategoryResponse(categoryEntity, 0L);
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +59,7 @@ public class CategoryService {
 
         String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
 
-        Page<CategoryEntity> page = categoryRepository
+        Page<CategoryProjection> page = categoryRepository
                 .findAllWithFilter(
                         userId,
                         type,
@@ -73,39 +74,42 @@ public class CategoryService {
     public CategoryResponse getCategory(String id) {
         String userId = currentUser.getId();
 
-        CategoryEntity category = categoryRepository
-                .findByIdAndUser_Id(id, userId)
+        CategoryProjection categoryDetail = categoryRepository
+                .findDetail(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
-        return categoryMapper.toCategoryResponse(category);
+        return categoryMapper.toCategoryResponse(categoryDetail);
     }
 
     @Transactional
     public CategoryResponse update(String id, CategoryRequest request) {
         String userId = currentUser.getId();
 
-        String name = request.getName().trim();
-
-        CategoryEntity category = categoryRepository
+        CategoryEntity categoryEntity = categoryRepository
                 .findByIdAndUser_Id(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
-        category.update(
-                name,
-                request.getType()
+        categoryEntity.update(
+                request.getName().trim(),
+                request.getType(),
+                request.getActive()
         );
 
-        return categoryMapper.toCategoryResponse(category);
+        CategoryProjection categoryDetail = categoryRepository
+                .findDetail(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
+
+        return categoryMapper.toCategoryResponse(categoryDetail);
     }
 
     @Transactional
     public void deleteById(String id) {
         String userId = currentUser.getId();
 
-        CategoryEntity category = categoryRepository
+        CategoryEntity categoryEntity = categoryRepository
                 .findByIdAndUser_Id(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
-        categoryRepository.delete(category);
+        categoryRepository.delete(categoryEntity);
     }
 }

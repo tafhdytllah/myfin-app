@@ -7,6 +7,7 @@ CREATE TABLE categories
     id         VARCHAR(64) PRIMARY KEY,
     name       VARCHAR(100)                        NOT NULL,
     type       VARCHAR(20)                         NOT NULL,
+    is_active  BOOLEAN   DEFAULT TRUE              NOT NULL,
     user_id    VARCHAR(64)                         NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by VARCHAR(64)                         NOT NULL,

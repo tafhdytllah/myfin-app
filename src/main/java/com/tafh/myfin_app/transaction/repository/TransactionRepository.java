@@ -199,4 +199,6 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
             @Param("userId") String userId
     );
 
+    long countByCategory_IdAndAccountUser_Id(String categoryId, String userId);
+
 }
