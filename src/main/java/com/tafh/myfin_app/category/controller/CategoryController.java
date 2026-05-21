@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.category.controller;
 
+import com.tafh.myfin_app.category.dto.CategoryStatusRequest;
 import com.tafh.myfin_app.category.service.CategoryService;
 import com.tafh.myfin_app.category.dto.CategoryRequest;
 import com.tafh.myfin_app.category.dto.CategoryResponse;
@@ -33,10 +34,11 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories(
             @RequestParam(required = false) CategoryType type,
+            @RequestParam(required = false) Boolean status,
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        Page<CategoryResponse> page = categoryService.getCategories(type, keyword, pageable);
+        Page<CategoryResponse> page = categoryService.getCategories(type, status, keyword, pageable);
         MetaResponse meta = metaMapper.buildMetaResponse(page);
         List<CategoryResponse> categories = page.getContent();
 
@@ -54,6 +56,14 @@ public class CategoryController {
             @Valid @RequestBody CategoryRequest request
     ) {
         return ResponseHelper.ok(categoryService.update(id, request));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<CategoryResponse>> updateStatus(
+            @PathVariable String id,
+            @Valid @RequestBody CategoryStatusRequest request
+    ) {
+        return ResponseHelper.ok(categoryService.updateStatus(id, request));
     }
 
     @DeleteMapping("/{id}")

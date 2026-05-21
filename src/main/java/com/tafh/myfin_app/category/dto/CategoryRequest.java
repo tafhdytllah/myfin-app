@@ -18,5 +18,4 @@ public class CategoryRequest {
     @NotNull(message = "Type is required")
     private CategoryType type;
 
-    private Boolean active;
 }

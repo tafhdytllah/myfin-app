@@ -49,7 +49,7 @@ public class CategoryEntity extends BaseEntity {
         return category;
     }
 
-    public void update(String name, CategoryType type, Boolean active) {
+    public void update(String name, CategoryType type) {
         if (name == null || name.isBlank()) {
             throw new DomainException("Category name is required");
         }
@@ -60,7 +60,14 @@ public class CategoryEntity extends BaseEntity {
 
         this.name = name;
         this.type = type;
-        if (active != null) this.active = active;
+    }
+
+    public void active() {
+        this.active = true;
+    }
+
+    public void deactive() {
+        this.active = false;
     }
 
 }
