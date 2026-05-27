@@ -1,6 +1,6 @@
 package com.tafh.myfin_app.category.controller;
 
-import com.tafh.myfin_app.category.dto.CategoryStatusRequest;
+import com.tafh.myfin_app.category.dto.StatusCategoryRequest;
 import com.tafh.myfin_app.category.service.CategoryService;
 import com.tafh.myfin_app.category.dto.CategoryRequest;
 import com.tafh.myfin_app.category.dto.CategoryResponse;
@@ -31,25 +31,6 @@ public class CategoryController {
         return ResponseHelper.created(categoryService.create(request));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories(
-            @RequestParam(required = false) CategoryType type,
-            @RequestParam(required = false) Boolean status,
-            @RequestParam(required = false) String keyword,
-            Pageable pageable
-    ) {
-        Page<CategoryResponse> page = categoryService.getCategories(type, status, keyword, pageable);
-        MetaResponse meta = metaMapper.buildMetaResponse(page);
-        List<CategoryResponse> categories = page.getContent();
-
-        return ResponseHelper.ok(categories, meta);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getCategory(@PathVariable String id) {
-        return ResponseHelper.ok(categoryService.getCategory(id));
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> update(
             @PathVariable String id,
@@ -61,9 +42,28 @@ public class CategoryController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateStatus(
             @PathVariable String id,
-            @Valid @RequestBody CategoryStatusRequest request
+            @Valid @RequestBody StatusCategoryRequest request
     ) {
         return ResponseHelper.ok(categoryService.updateStatus(id, request));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories(
+            @RequestParam(required = false) CategoryType type,
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String keyword,
+            Pageable pageable
+    ) {
+        Page<CategoryResponse> page = categoryService.getCategories(type, active, keyword, pageable);
+        MetaResponse meta = metaMapper.buildMetaResponse(page);
+        List<CategoryResponse> categories = page.getContent();
+
+        return ResponseHelper.ok(categories, meta);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategory(@PathVariable String id) {
+        return ResponseHelper.ok(categoryService.getCategory(id));
     }
 
     @DeleteMapping("/{id}")

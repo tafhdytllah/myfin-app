@@ -66,7 +66,7 @@ public class CategoryEntity extends BaseEntity {
         this.active = true;
     }
 
-    public void deactive() {
+    public void deactivate() {
         this.active = false;
     }
 

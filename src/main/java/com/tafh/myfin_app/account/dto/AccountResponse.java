@@ -13,5 +13,9 @@ public class AccountResponse {
 
     private String id;
     private String name;
-    private BigDecimal balance;
+    private BigDecimal openingBalance;
+    private BigDecimal currentBalance;
+    private boolean active;
+    private long usageCount;
+
 }

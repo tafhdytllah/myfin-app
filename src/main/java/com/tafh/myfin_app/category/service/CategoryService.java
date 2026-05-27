@@ -2,7 +2,7 @@ package com.tafh.myfin_app.category.service;
 
 import com.tafh.myfin_app.category.dto.CategoryRequest;
 import com.tafh.myfin_app.category.dto.CategoryResponse;
-import com.tafh.myfin_app.category.dto.CategoryStatusRequest;
+import com.tafh.myfin_app.category.dto.StatusCategoryRequest;
 import com.tafh.myfin_app.category.mapper.CategoryMapper;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
@@ -48,40 +48,6 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(categoryEntity, 0L);
     }
 
-    @Transactional(readOnly = true)
-    public Page<CategoryResponse> getCategories(
-            CategoryType type,
-            Boolean status,
-            String keyword,
-            Pageable pageable
-    ) {
-        String userId = currentUser.getId();
-
-        String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
-
-        Page<CategoryProjection> page = categoryRepository
-                .findAllWithFilter(
-                        userId,
-                        type,
-                        status,
-                        searchTerm,
-                        pageable
-                );
-
-        return page.map(categoryMapper::toCategoryResponse);
-    }
-
-    @Transactional(readOnly = true)
-    public CategoryResponse getCategory(String id) {
-        String userId = currentUser.getId();
-
-        CategoryProjection categoryDetail = categoryRepository
-                .findDetail(id, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
-
-        return categoryMapper.toCategoryResponse(categoryDetail);
-    }
-
     @Transactional
     public CategoryResponse update(String id, CategoryRequest request) {
         String userId = currentUser.getId();
@@ -103,7 +69,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateStatus(String id, CategoryStatusRequest request) {
+    public CategoryResponse updateStatus(String id, StatusCategoryRequest request) {
         String userId = currentUser.getId();
 
         CategoryEntity categoryEntity = categoryRepository
@@ -113,8 +79,42 @@ public class CategoryService {
         if (request.getActive() == true) {
             categoryEntity.active();
         } else {
-            categoryEntity.deactive();
+            categoryEntity.deactivate();
         }
+
+        CategoryProjection categoryDetail = categoryRepository
+                .findDetail(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
+
+        return categoryMapper.toCategoryResponse(categoryDetail);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CategoryResponse> getCategories(
+            CategoryType type,
+            Boolean active,
+            String keyword,
+            Pageable pageable
+    ) {
+        String userId = currentUser.getId();
+
+        String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
+
+        Page<CategoryProjection> page = categoryRepository
+                .findAllWithFilter(
+                        userId,
+                        type,
+                        active,
+                        searchTerm,
+                        pageable
+                );
+
+        return page.map(categoryMapper::toCategoryResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public CategoryResponse getCategory(String id) {
+        String userId = currentUser.getId();
 
         CategoryProjection categoryDetail = categoryRepository
                 .findDetail(id, userId)

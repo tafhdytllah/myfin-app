@@ -4,16 +4,18 @@
 
 CREATE TABLE public.accounts
 (
-    id         VARCHAR(64) PRIMARY KEY,
-    name       VARCHAR(100)                             NOT NULL,
-    balance    DECIMAL(19, 2) DEFAULT 0                 NOT NULL,
-    user_id    VARCHAR(64)                              NOT NULL,
-    created_at TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_by VARCHAR(64)                              NOT NULL,
-    updated_at TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_by VARCHAR(64)                              NOT NULL,
-    deleted_at TIMESTAMP NULL,
-    deleted_by VARCHAR(64) NULL,
+    id              VARCHAR(64) PRIMARY KEY,
+    name            VARCHAR(100)                             NOT NULL,
+    opening_balance DECIMAL(19, 2) DEFAULT 0                 NOT NULL,
+    current_balance DECIMAL(19, 2) DEFAULT 0                 NOT NULL,
+    is_active       BOOLEAN        DEFAULT TRUE              NOT NULL,
+    user_id         VARCHAR(64)                              NOT NULL,
+    created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_by      VARCHAR(64)                              NOT NULL,
+    updated_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_by      VARCHAR(64)                              NOT NULL,
+    deleted_at      TIMESTAMP                                NULL,
+    deleted_by      VARCHAR(64)                              NULL,
     CONSTRAINT fk_accounts_user FOREIGN KEY (user_id)
         REFERENCES public.users (id)
         ON DELETE CASCADE

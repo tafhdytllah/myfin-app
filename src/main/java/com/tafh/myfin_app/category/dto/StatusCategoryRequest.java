@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryStatusRequest {
+public class StatusCategoryRequest {
 
     @NotNull(message = "active is required")
     private Boolean active;

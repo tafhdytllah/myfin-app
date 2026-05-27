@@ -51,7 +51,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, String
                         :type IS NULL OR c.type = :type
                       )
                   AND (
-                         :status IS NULL OR c.active = :status
+                         :active IS NULL OR c.active = :active
                       )
                   AND (
                         :searchTerm IS NULL
@@ -64,7 +64,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, String
     Page<CategoryProjection> findAllWithFilter(
             @Param("userId") String userId,
             @Param("type") CategoryType type,
-            @Param("status") Boolean status,
+            @Param("active") Boolean active,
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );

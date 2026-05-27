@@ -67,17 +67,17 @@ public class DevSeedRunner implements CommandLineRunner {
         accounts.put("Main Wallet", accountRepository.save(AccountEntity.create(
                 user,
                 "Main Wallet",
-                BigDecimal.ZERO
+                new BigDecimal("1500000")
         )));
         accounts.put("BCA Savings", accountRepository.save(AccountEntity.create(
                 user,
                 "BCA Savings",
-                BigDecimal.ZERO
+                new BigDecimal("12000000")
         )));
         accounts.put("Emergency Fund", accountRepository.save(AccountEntity.create(
                 user,
                 "Emergency Fund",
-                BigDecimal.ZERO
+                new BigDecimal("5000000")
         )));
 
         return accounts;

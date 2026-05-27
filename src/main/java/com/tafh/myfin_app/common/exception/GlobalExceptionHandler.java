@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.common.exception;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.tafh.myfin_app.common.constant.ErrorCode;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.util.LogHelper;
@@ -7,6 +8,7 @@ import com.tafh.myfin_app.common.util.ResponseHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,9 +20,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /* =======================
-     VALIDATION ERROR
-     ======================= */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidation(
             MethodArgumentNotValidException ex
@@ -34,12 +33,13 @@ public class GlobalExceptionHandler {
                 );
 
         LogHelper.warn("BAD_REQUEST : {}", details);
-        return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, details);
+        return ResponseHelper.error(
+                HttpStatus.BAD_REQUEST,
+                ErrorCode.VALIDATION_ERROR,
+                details
+        );
     }
 
-    /* =======================
-       BUSINESS ERRORS
-       ======================= */
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<Object>> handleBadRequest(
             BadRequestException ex
@@ -48,7 +48,37 @@ public class GlobalExceptionHandler {
         details.putIfAbsent(ex.getField(), ex.getMessage());
 
         LogHelper.warn("BAD_REQUEST : {}", details);
-        return ResponseHelper.error(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, details);
+        return ResponseHelper.error(
+                HttpStatus.BAD_REQUEST,
+                ErrorCode.VALIDATION_ERROR,
+                details
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidRequestBody(
+            HttpMessageNotReadableException ex
+    ) {
+        LogHelper.warn("BAD_REQUEST : {}", ex.getMessage());
+
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof UnrecognizedPropertyException unrecognized) {
+
+            String fieldName = unrecognized.getPropertyName();
+
+            return ResponseHelper.error(
+                    HttpStatus.BAD_REQUEST,
+                    ErrorCode.BAD_REQUEST,
+                    "Unknown field: " + fieldName
+            );
+        }
+
+        return ResponseHelper.error(
+                HttpStatus.BAD_REQUEST,
+                ErrorCode.BAD_REQUEST,
+                "Invalid request body"
+        );
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -56,7 +86,11 @@ public class GlobalExceptionHandler {
             UnauthorizedException ex
     ) {
         LogHelper.warn("UNAUTHORIZED : {}", ex.getMessage());
-        return ResponseHelper.error(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, ex.getMessage());
+        return ResponseHelper.error(
+                HttpStatus.UNAUTHORIZED,
+                ErrorCode.UNAUTHORIZED,
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(ForbiddenException.class)
@@ -64,7 +98,11 @@ public class GlobalExceptionHandler {
             ForbiddenException ex
     ) {
         LogHelper.warn("FORBIDDEN : {}", ex.getMessage());
-        return ResponseHelper.error(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, ex.getMessage());
+        return ResponseHelper.error(
+                HttpStatus.FORBIDDEN,
+                ErrorCode.FORBIDDEN,
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -72,7 +110,11 @@ public class GlobalExceptionHandler {
             ResourceNotFoundException ex
     ) {
         LogHelper.warn("NOT_FOUND : {}", ex.getMessage());
-        return ResponseHelper.error(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, ex.getMessage());
+        return ResponseHelper.error(
+                HttpStatus.NOT_FOUND,
+                ErrorCode.NOT_FOUND,
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(DomainException.class)
@@ -87,6 +129,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+
     /* =======================
        FALLBACK
        ======================= */
@@ -94,8 +137,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleGeneric(
             Exception ex
     ) {
-        LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex);
-        return ResponseHelper.error(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
+        LogHelper.error("INTERNAL_SERVER_ERROR : {}", ex.getMessage());
+        return ResponseHelper.error(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Something went wrong"
+        );
     }
 
 }
