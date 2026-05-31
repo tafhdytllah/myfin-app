@@ -25,8 +25,9 @@ public class AuthController {
     private final CookieUtil cookieUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseHelper.created(authService.register(request));
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
+        authService.register(request);
+        return ResponseHelper.created(null,"User registered successfully");
     }
 
     @PostMapping("/login")

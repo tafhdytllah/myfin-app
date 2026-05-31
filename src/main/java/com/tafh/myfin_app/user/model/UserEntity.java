@@ -65,6 +65,19 @@ public class UserEntity extends BaseEntity {
         return user;
     }
 
+    public void update(String username, String email) {
+        if (username == null || username.isBlank()) {
+            throw new DomainException("Username is required");
+        }
+
+        if (email == null || email.isBlank()) {
+            throw new DomainException("Email is required");
+        }
+
+        this.username = username;
+        this.email = email;
+    }
+
     public void enable() {
         this.active = true;
     }

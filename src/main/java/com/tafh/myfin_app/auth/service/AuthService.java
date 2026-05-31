@@ -11,7 +11,6 @@ import com.tafh.myfin_app.common.exception.UnauthorizedException;
 import com.tafh.myfin_app.common.security.JwtService;
 import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.refresh_token.service.RefreshTokenService;
-import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.model.RoleEnum;
 import com.tafh.myfin_app.user.mapper.UserMapper;
 import com.tafh.myfin_app.user.model.UserEntity;
@@ -32,7 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserProfileResponse register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
         LogHelper.info("AUTH_REGISTER username={} email={}", request.getUsername(), request.getEmail());
 
         String username = request.getUsername().trim();
@@ -53,7 +52,6 @@ public class AuthService {
         UserEntity savedUser = userRepository.save(user);
 
         LogHelper.info("AUTH_REGISTER_SUCCESS userId={}", savedUser.getId());
-        return userMapper.toUserProfileResponse(savedUser);
     }
 
     @Transactional

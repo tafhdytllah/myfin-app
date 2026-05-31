@@ -31,6 +31,12 @@ public class ResponseHelper {
                 .body(ApiResponse.success(data));
     }
 
+    public static <T> ResponseEntity<ApiResponse<T>> created(T data, String message) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success(data, message));
+    }
+
     /**
      * FOR VALIDATION ERROR
      */
