@@ -78,6 +78,15 @@ public class UserEntity extends BaseEntity {
         this.email = email;
     }
 
+    public void changePassword(String passwordHash) {
+        if (passwordHash == null || passwordHash.isBlank()) {
+            throw new DomainException("Password is required");
+        }
+
+        this.passwordHash = passwordHash;
+    }
+
+
     public void enable() {
         this.active = true;
     }

@@ -2,6 +2,7 @@ package com.tafh.myfin_app.user.controller;
 
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.util.ResponseHelper;
+import com.tafh.myfin_app.user.dto.ChangePasswordUserRequest;
 import com.tafh.myfin_app.user.dto.UpdateUserProfileRequest;
 import com.tafh.myfin_app.user.dto.UserProfileResponse;
 import com.tafh.myfin_app.user.service.UserService;
@@ -27,6 +28,15 @@ public class UserController {
             @Valid @RequestBody UpdateUserProfileRequest request
     ) {
         return ResponseHelper.ok(userService.update(request));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody ChangePasswordUserRequest request
+    ) {
+        userService.changePassword(request);
+
+        return ResponseHelper.ok(null, "Password change successfully");
     }
 
 }
