@@ -58,4 +58,12 @@ public class TransactionEntity extends BaseEntity {
         return transaction;
     }
 
+    public void reverse() {
+        if (type == CategoryType.INCOME) {
+            account.decreaseBalance(amount);
+        } else {
+            account.increaseBalance(amount);
+        }
+    }
+
 }

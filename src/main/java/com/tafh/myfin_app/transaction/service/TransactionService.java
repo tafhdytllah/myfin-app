@@ -105,7 +105,7 @@ public class TransactionService {
         String userId = currentUser.getId();
 
         TransactionEntity transaction = transactionRepository
-                .findByIdAndAccount_User_Id(id, userId)
+                .findByIdAndAccount_User_IdAndDeletedAtIsNull(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
 
         return transactionMapper.toTransactionResponse(transaction);
@@ -130,16 +130,12 @@ public class TransactionService {
         String userId = currentUser.getId();
 
         TransactionEntity transaction = transactionRepository
-                .findByIdAndAccount_User_Id(id, userId)
+                .findByIdAndAccount_User_IdAndDeletedAtIsNull(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
 
-        if (transaction.getType() == CategoryType.INCOME) {
-            transaction.getAccount().decreaseBalance(transaction.getAmount());
-        } else {
-            transaction.getAccount().increaseBalance(transaction.getAmount());
-        }
+        transaction.reverse();
 
-        transactionRepository.delete(transaction);
+        transaction.softDelete(userId);
     }
 
 }

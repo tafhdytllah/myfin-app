@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
 
-    Optional<TransactionEntity> findByIdAndAccount_User_Id(String id, String userId);
+    Optional<TransactionEntity> findByIdAndAccount_User_IdAndDeletedAtIsNull(String id, String userId);
 
     @Query("""
                 SELECT t FROM TransactionEntity t

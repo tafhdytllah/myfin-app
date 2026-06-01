@@ -1,5 +1,6 @@
 package com.tafh.myfin_app.common.model;
 
+import com.tafh.myfin_app.common.exception.DomainException;
 import com.tafh.myfin_app.common.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -47,16 +48,28 @@ public abstract class BaseEntity {
         if (this.id == null) {
             this.id = generateId();
         }
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {
-        return deletedAt != null;
+        return deletedAt != null ;
+    }
+
+    public void softDelete(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new DomainException("User is required");
+        }
+
+        if (isDeleted()) {
+            return;
+        }
+
+        this.deletedAt = LocalDateTime.now();;
+        this.deletedBy = userId;
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+        this.deletedBy = null;
     }
 
     protected String generateId() {
