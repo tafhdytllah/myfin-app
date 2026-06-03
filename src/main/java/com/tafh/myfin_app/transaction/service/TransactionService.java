@@ -5,11 +5,13 @@ import com.tafh.myfin_app.account.repository.AccountRepository;
 import com.tafh.myfin_app.category.model.CategoryEntity;
 import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.category.repository.CategoryRepository;
+import com.tafh.myfin_app.common.exception.BadRequestException;
 import com.tafh.myfin_app.common.exception.ResourceNotFoundException;
 import com.tafh.myfin_app.common.model.DateTimeRange;
 import com.tafh.myfin_app.common.security.CurrentUser;
 import com.tafh.myfin_app.common.util.DateRangeHelper;
 import com.tafh.myfin_app.common.util.LikeQueryHelper;
+import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
 import com.tafh.myfin_app.transaction.dto.TransactionSummaryResponse;
@@ -41,21 +43,14 @@ public class TransactionService {
         String userId = currentUser.getId();
 
         String description = Optional.ofNullable(request.getDescription()).map(String::trim).orElse(null);
-        BigDecimal amount = request.getAmount();
 
         AccountEntity account = accountRepository
                 .findByIdAndUser_Id(request.getAccountId(), userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
 
         CategoryEntity category = categoryRepository
-                .findByIdAndUser_Id(request.getCategoryId(), userId)
+                .findByIdAndUser_IdAndActiveIsTrue(request.getCategoryId(), userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
-
-        if (request.getType() == CategoryType.INCOME) {
-            account.increaseBalance(amount);
-        } else {
-            account.decreaseBalance(amount);
-        }
 
         TransactionEntity transaction = TransactionEntity.create(
                 account,
@@ -65,7 +60,42 @@ public class TransactionService {
                 description
         );
 
+        transaction.applyEffect();
+
         transactionRepository.save(transaction);
+
+        return transactionMapper.toTransactionResponse(transaction);
+    }
+
+    @Transactional
+    public TransactionResponse update(String id, TransactionRequest request) {
+        String userId = currentUser.getId();
+
+        String description = Optional.ofNullable(request.getDescription()).map(String::trim).orElse(null);
+
+        TransactionEntity transaction = transactionRepository
+                .findByIdAndAccount_User_IdAndDeletedAtIsNull(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
+
+        AccountEntity account = accountRepository
+                .findByIdAndUser_Id(request.getAccountId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account is not found"));
+
+        CategoryEntity category = categoryRepository
+                .findByIdAndUser_IdAndActiveIsTrue(request.getCategoryId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
+
+        transaction.revertEffect();
+
+        transaction.update(
+                account,
+                category,
+                request.getAmount(),
+                request.getType(),
+                description
+        );
+
+        transaction.applyEffect();
 
         return transactionMapper.toTransactionResponse(transaction);
     }
@@ -133,7 +163,7 @@ public class TransactionService {
                 .findByIdAndAccount_User_IdAndDeletedAtIsNull(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
 
-        transaction.reverse();
+        transaction.revertEffect();
 
         transaction.softDelete(userId);
     }

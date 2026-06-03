@@ -29,7 +29,7 @@ public class DateRangeHelper {
     }
 
     public static int resolveYearOrCurrent(Integer year) {
-        return (year != null) ? year : LocalDateTime.now().getYear();
+        return year;
     }
 
 }

@@ -53,7 +53,7 @@ public class CategoryService {
         String userId = currentUser.getId();
 
         CategoryEntity categoryEntity = categoryRepository
-                .findByIdAndUser_Id(id, userId)
+                .findByIdAndUser_IdAndActiveIsTrue(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
         categoryEntity.update(
@@ -73,7 +73,7 @@ public class CategoryService {
         String userId = currentUser.getId();
 
         CategoryEntity categoryEntity = categoryRepository
-                .findByIdAndUser_Id(id, userId)
+                .findByIdAndUser_IdAndActiveIsTrue(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
         if (request.getActive() == true) {
@@ -128,7 +128,7 @@ public class CategoryService {
         String userId = currentUser.getId();
 
         CategoryEntity categoryEntity = categoryRepository
-                .findByIdAndUser_Id(id, userId)
+                .findByIdAndUser_IdAndActiveIsTrue(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category is not found"));
 
         categoryRepository.delete(categoryEntity);

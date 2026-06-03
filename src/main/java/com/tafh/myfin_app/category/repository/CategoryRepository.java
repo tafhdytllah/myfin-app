@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, String> {
 
-    Optional<CategoryEntity> findByIdAndUser_Id(String id, String userId);
+    Optional<CategoryEntity> findByIdAndUser_IdAndActiveIsTrue(String id, String userId);
 
     @Query("""
                 SELECT
@@ -46,6 +46,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, String
                 LEFT JOIN TransactionEntity t
                             ON t.category.id = c.id
                             AND t.account.user.id = :userId
+                            AND t.deletedAt IS NULL
                 WHERE c.user.id = :userId
                   AND (
                         :type IS NULL OR c.type = :type

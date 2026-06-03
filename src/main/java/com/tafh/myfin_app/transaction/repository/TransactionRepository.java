@@ -24,16 +24,13 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("""
                 SELECT t FROM TransactionEntity t
                 WHERE t.account.user.id = :userId
+                  AND t.deletedAt IS NULL
                   AND (:accountId IS NULL OR t.account.id = :accountId)
                   AND (:type IS NULL OR t.type = :type)
                   AND (:categoryId IS NULL OR t.category.id = :categoryId)
                   AND t.createdAt >= :startDateTime
                   AND t.createdAt <= :endDateTime
-                  AND (
-                        :searchTerm IS NULL
-                        OR LOWER(t.description) LIKE :searchTerm ESCAPE '\\'
-                        OR LOWER(t.category.name) LIKE :searchTerm ESCAPE '\\'
-                      )
+                  AND (:searchTerm IS NULL OR LOWER(t.description) LIKE :searchTerm ESCAPE '\\')
             """)
     Page<TransactionEntity> findAllWithFilter(
             @Param("userId") String userId,

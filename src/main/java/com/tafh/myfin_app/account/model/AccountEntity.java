@@ -2,16 +2,13 @@ package com.tafh.myfin_app.account.model;
 
 import com.tafh.myfin_app.common.exception.DomainException;
 import com.tafh.myfin_app.common.model.BaseEntity;
-import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 
-@Slf4j
 @Entity
 @Table(name = "accounts")
 @Getter

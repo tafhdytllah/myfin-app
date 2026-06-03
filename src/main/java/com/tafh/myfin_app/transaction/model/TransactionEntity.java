@@ -41,12 +41,7 @@ public class TransactionEntity extends BaseEntity {
             CategoryType type,
             String description
     ) {
-        if (account == null) throw new DomainException("Account is required");
-        if (category == null) throw new DomainException("Category is required");
-        if (amount == null) throw new DomainException("Amount is required");
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) throw new DomainException("Amount must be greater than zero");
-        if (type == null) throw new DomainException("Transaction type is required");
-        if (category.getType() != type) throw new DomainException("Category type mismatch");
+        validateTransactionData(account, category, amount, type);
 
         TransactionEntity transaction = new TransactionEntity();
         transaction.account = account;
@@ -58,12 +53,59 @@ public class TransactionEntity extends BaseEntity {
         return transaction;
     }
 
-    public void reverse() {
-        if (type == CategoryType.INCOME) {
-            account.decreaseBalance(amount);
-        } else {
-            account.increaseBalance(amount);
+    public void update(
+            AccountEntity account,
+            CategoryEntity category,
+            BigDecimal amount,
+            CategoryType type,
+            String description
+    ) {
+        validateTransactionData(account, category, amount, type);
+
+        this.account = account;
+        this.category = category;
+        this.amount = amount;
+        this.type = type;
+        this.description = description;
+    }
+
+    public void applyEffect() {
+        if (isIncome()) {
+            increaseBalance();
+            return;
         }
+
+        decreaseBalance();
+    }
+
+    public void revertEffect() {
+        if (isIncome()) {
+            decreaseBalance();
+            return;
+        }
+
+        increaseBalance();
+    }
+
+    private static void validateTransactionData(AccountEntity account, CategoryEntity category, BigDecimal amount, CategoryType type) {
+        if (account == null) throw new DomainException("Account is required");
+        if (category == null) throw new DomainException("Category is required");
+        if (amount == null) throw new DomainException("Amount is required");
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) throw new DomainException("Amount must be greater than zero");
+        if (type == null) throw new DomainException("Transaction type is required");
+        if (category.getType() != type) throw new DomainException("Category type mismatch");
+    }
+
+    private boolean isIncome() {
+        return type == CategoryType.INCOME;
+    }
+
+    private void increaseBalance() {
+        account.increaseBalance(amount);
+    }
+
+    private void decreaseBalance() {
+        account.decreaseBalance(amount);
     }
 
 }

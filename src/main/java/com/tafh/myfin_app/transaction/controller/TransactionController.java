@@ -4,6 +4,7 @@ import com.tafh.myfin_app.category.model.CategoryType;
 import com.tafh.myfin_app.common.dto.ApiResponse;
 import com.tafh.myfin_app.common.dto.MetaMapper;
 import com.tafh.myfin_app.common.dto.MetaResponse;
+import com.tafh.myfin_app.common.util.LogHelper;
 import com.tafh.myfin_app.common.util.ResponseHelper;
 import com.tafh.myfin_app.transaction.dto.TransactionRequest;
 import com.tafh.myfin_app.transaction.dto.TransactionResponse;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,6 +31,14 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<ApiResponse<TransactionResponse>> create(@Valid @RequestBody TransactionRequest request) {
         return ResponseHelper.created(transactionService.create(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TransactionResponse>> update(
+            @PathVariable String id,
+            @Valid @RequestBody TransactionRequest request
+    ) {
+        return ResponseHelper.ok(transactionService.update(id, request));
     }
 
     @GetMapping
