@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<AccountEntity, String> {
@@ -54,11 +55,10 @@ public interface AccountRepository extends JpaRepository<AccountEntity, String> 
                       )
                   GROUP BY a.id, a.name, a.openingBalance, a.currentBalance, a.active
             """)
-    Page<AccountProjection> findAllWithFilter(
+    List<AccountProjection> findAllWithFilter(
             @Param("userId") String userId,
             @Param("active") Boolean active,
-            @Param("searchTerm") String searchTerm,
-            Pageable pageable
+            @Param("searchTerm") String searchTerm
     );
 
 

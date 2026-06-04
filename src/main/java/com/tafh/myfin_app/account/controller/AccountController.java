@@ -52,14 +52,9 @@ public class AccountController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<AccountResponse>>> getAccounts(
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) String keyword,
-            Pageable pageable
+            @RequestParam(required = false) String keyword
     ) {
-        Page<AccountResponse> page = accountService.getAccounts(active, keyword, pageable);
-        MetaResponse meta = metaMapper.buildMetaResponse(page);
-        List<AccountResponse> accounts = page.getContent();
-
-        return ResponseHelper.ok(accounts, meta);
+        return ResponseHelper.ok(accountService.getAccounts(active, keyword));
     }
 
     @GetMapping("/{id}")

@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -104,24 +106,24 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AccountResponse> getAccounts(
+    public List<AccountResponse> getAccounts(
             Boolean active,
-            String keyword,
-            Pageable pageable
+            String keyword
     ) {
         String userId = currentUser.getId();
 
         String searchTerm = LikeQueryHelper.toContainsPattern(keyword);
 
-        Page<AccountProjection> accounts = accountRepository
+        List<AccountProjection> accounts = accountRepository
                 .findAllWithFilter(
                         userId,
                         active,
-                        searchTerm,
-                        pageable
+                        searchTerm
                 );
 
-        return accounts.map(accountMapper::toAccountResponse);
+        return accounts.stream()
+                .map(accountMapper::toAccountResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
